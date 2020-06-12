@@ -33,7 +33,7 @@ Control Flow of Program:
     Allinfo.csv & referenceDataParams -> calibrate.py -> guesses the params from macro info and generates stats on accuracy (prelim results)
 
 Presently Working On:
-    
+    determining inflow params
 ===================================================================================================================================
 """
 
@@ -46,16 +46,23 @@ from flow.envs import LaneChangeAccelEnv
 from flow.core.experiment import Experiment
 import numpy as np
 import pandas as pd
-import os
-
+import os, sys
 
 """
 accel_data = (BandoFTL_Controller,{'alpha':.5,'beta':20.0,'h_st':12.0,'h_go':50.0,'v_max':30.0,'noise':1.0})
 traffic_speed = 18.1
 traffic_flow = 2056
 """
+#read data
+a = round(float(sys.argv[1]),2)
+b = round(float(sys.argv[2]),2)
+noise =round(float(sys.argv[3]),2)
+v0 = round(float(sys.argv[4]),3)
+T = round(float(sys.argv[5]),2)
+delta = round(float(sys.argv[6]),2)
+s0 = round(float(sys.argv[7]),2)
 
-accel_data = (IDMController, {'a':.6,'b':6.0,'noise':1.0, 'v0':30, 'T': 1, 'delta':4, 's0':2})
+accel_data = (IDMController, {'a':a,'b':b,'noise':noise, 'v0':v0, 'T':T, 'delta':delta, 's0':s0})
 traffic_speed = 25.8
 traffic_flow = 1720
 
@@ -91,47 +98,36 @@ additional_net_params = ADDITIONAL_NET_PARAMS.copy()
 additional_net_params['lanes'] =1
 additional_net_params['length'] = 10000
 
-
-
-
 flow_params = dict(
     # name of the experiment
     exp_tag='highway',
-
     # name of the flow environment the experiment is running on
     env_name=LaneChangeAccelEnv,
-
     # name of the network class the experiment is running on
     network=HighwayNetwork,
-
     # simulator that is used by the experiment
     simulator='traci',
-
     # sumo-related parameters (see flow.core.params.SumoParams)
     sim=SumoParams(
-        render=True,
+        render=False,
         lateral_resolution=1.0,
         emission_path='data',
         restart_instance=True,
     ),
-
     # environment related parameters (see flow.core.params.EnvParams)
     env=EnvParams(
-        horizon=10000,
+        horizon=1000,
         additional_params=ADDITIONAL_ENV_PARAMS.copy(),
     ),
-
     # network-related parameters (see flow.core.params.NetParams and the
     # network's documentation or ADDITIONAL_NET_PARAMS component)
     net=NetParams(
         inflows=inflow,
         additional_params=additional_net_params,
     ),
-
     # vehicles to be placed in the network at the start of a rollout (see
     # flow.core.params.VehicleParams)
     veh=vehicles,
-
     # parameters specifying the positioning of vehicles upon initialization/
     # reset (see flow.core.params.InitialConfig)
     initial=InitialConfig(
