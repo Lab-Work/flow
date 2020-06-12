@@ -1,19 +1,42 @@
 """
-To Do:
-    make idm variables user determined
-        make carfollowing model parameters user determined
-    make env, net and sumo params user determined
-    run sim -> micro data
-    make code for micro to radar data 
-    make code for radar data to macro quantity
-    plotting of info and various graphs
-Plan:
-    have multiple run automated sim-analysis program ready
-    various IDM params sim
-        <velocity and other driver behaviour params from distribution (probabilities, randomness and statistics)> -> think about later
-    inflow resembling some realistic distribution
-    * closed road (FD) sim for all above cases to get FD
+@author: Sadman Ahmed Shanto
+status: in development
+===================================================================================================================================
+Update Plan: 
+    1) have multiple sim launching script ready  
+        a) launch a sim with default values
+        b) launch a sim with chosen values
+    2) have script that creates data params 
+        a) script must also have abilities to create random numbers
+        b) script can generate n number of entries
+    3) have script that plots microsim data and macro info
+    4) have script that uses the parameter data relationship established by 1)a) and 1)b) and some 
+            calibration model to take data from from unknown params to determine the params
+            then check for how close those params are
+    5) create mother script to automate 
+    (optional)
+    6) for a default param set generate FD and using that same set sim a closed road traffic flow
+        then generate FD from the data 
+    7) generate sim with velocity and other driver behaviour params from distribution (probabilities, randomness and statistics)
+        a) inflow resembling some realistic distribution
+
+Expected TimeLine:
+    Jun 12: have data generation script and multiple sim launching script ready (date_generate.py, straight_road_test.py and ~calib_sim.sh)
+    Weekend: read calibration paper 
+    Monday: data_analysis.py and calibrate.py
+    Tuesday: have prelim results ready, tweak process 
+    Wednesday: have results and explanations ready
+
+Control Flow of Program:
+    date_generate.py -> data.csv -> calib_sim.sh -> straight_road_test.py -> microsim_data.csv 
+    microsim_data.csv -> data_analysis.py -> (figures, macro data, params) -> Allinfo.csv 
+    Allinfo.csv & referenceDataParams -> calibrate.py -> guesses the params from macro info and generates stats on accuracy (prelim results)
+
+Presently Working On:
+    
+===================================================================================================================================
 """
+
 from flow.controllers import IDMController,OV_FTL_Controller,LinearOVM,BandoFTL_Controller
 from flow.core.params import SumoParams, EnvParams, NetParams, InitialConfig, SumoLaneChangeParams
 from flow.core.params import VehicleParams, InFlows
