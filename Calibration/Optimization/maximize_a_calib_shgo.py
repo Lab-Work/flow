@@ -20,6 +20,7 @@ from scipy.optimize import Bounds
 from scipy.optimize import minimize
 from scipy.optimize import NonlinearConstraint
 from scipy.optimize import SR1
+from scipy.optimize import shgo
 
 Nfeval = 1 #tracks the number of iterations in optimization routine
 
@@ -69,8 +70,9 @@ def setGuessedParams():
     return [float(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3])]
 
 #a,v0,T
-bounds = Bounds(np.array([0,0]),np.array([np.inf,np.inf])) #No params should be negative
+bounds = [(0,np.inf),(0,np.inf)]
 # guess = setGuessedParams()
+
 best_error = getSpeedError(calibrated_params) 
 print("Initial error: ", best_error)
 
@@ -91,10 +93,13 @@ def getSpeedErrorPercentage(params):
     print("error percetange: " + str(100*percent_error) + " %")
     return percent_error
 
+#setting up the error constraints
 max_error_diff = 10
 
-#setting up the error constraints
-error_constraint = NonlinearConstraint(getErrorDifference,0,max_error_diff)
+def nl_constraint(params):
+    return - getErrorDifference(params) + max_error_diff
+
+error_constraint = ({'type': 'ineq', 'fun': nl_constraint})
 
 #sensitivity obj func
 def objective(params):
@@ -106,11 +111,15 @@ def objective(params):
     return -a-b
 
 # the following function gets executed when an iteration is complete (using for print outs)
-def callbackF(params,status):
+def callbackF(params):
     global Nfeval
     print('Iter: {0:4d}, a: {1: 3.6f}, b: {2: 3.6f}, obj: {3: 3.6f}, error_diff: {4: 3.6f}'.format(Nfeval, params[0], params[1], objective(params), getErrorDifference(params)))
     Nfeval += 1
 
 #calls and starts the optimization routine
-sol = minimize(objective, calibrated_params, method="trust-constr", bounds=bounds, constraints=error_constraint, callback=callbackF, options={'verbose': 3, 'xtol': 1e-08})
+sol = shgo(objective, bounds=bounds, constraints=error_constraint, iters=1, callback=callbackF, options={'disp':True}) 
 print(sol.x)
+print("Other local minima found: ")
+print(sol.xl)
+print("Corresponding func evals:")
+print(sol.funl)

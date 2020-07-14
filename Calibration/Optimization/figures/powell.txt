@@ -1,0 +1,8 @@
+simmed params:  [15.85938445  1.80182372]
+speed error: 901.4045040000001
+Optimization terminated successfully.
+         Current function value: 0.880493
+         Iterations: 2
+         Function evaluations: 102
+
+Comments: couldn't retrieve same params but minimized the error function pretty well.

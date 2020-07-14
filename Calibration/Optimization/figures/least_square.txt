@@ -1,0 +1,7 @@
+simmed params:  [19.9999995  1.0000093]
+speed error: 900.8780649999999
+       2             11         6.2904e-01      0.00e+00       0.00e+00       5.03e+06
+`xtol` termination condition is satisfied.
+Function evaluations 11, initial cost 7.9969e+02, final cost 6.2904e-01, first-order optimality 5.03e+06.
+
+Super fast
