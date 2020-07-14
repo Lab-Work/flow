@@ -16,13 +16,17 @@ import Process_Flow_Outputs as PFO
 
 class HighwayCongested:
  
-    def __init__(self,params,fidelity=30):
-        self.a = 1.3
-        self.b = 2.0
-        self.v0 = params[0]
-        self.T = params[1]
-        self.delta = 4
-        self.s0 = params[2]
+    def __init__(self,params=[1.3, 2.0,30.0,4.0,1.6,2.0],
+        fidelity=30,
+        sim_length=1000,
+        sim_step=.4):
+    
+        self.a = params[0]
+        self.b = params[1]
+        self.v0 = params[2]
+        self.T = params[4]
+        self.delta = params[3]
+        self.s0 = params[5]
         self.noise = 0 #no noise
         self.fidelity = fidelity
         self.traffic_speed = 24.1
@@ -35,6 +39,9 @@ class HighwayCongested:
         self.additional_net_params['end_speed_limit'] = 10.0
         self.additional_net_params['boundary_cell_length'] = 100
         self.csvFileName = ""
+        self.sim_step=sim_step
+        self.sim_length=sim_length
+        self.
         self.runSim()
 
     def addVehicles(self):
@@ -71,7 +78,7 @@ class HighwayCongested:
             simulator='traci',
             # sumo-related parameters (see flow.core.params.SumoParams)
             sim=SumoParams(
-                sim_step=0.4,
+                sim_step=self.sim_step,
                 render=False,
                 lateral_resolution=0.1,
                 emission_path='data/',
@@ -80,7 +87,7 @@ class HighwayCongested:
             ),
             # environment related parameters (see flow.core.params.EnvParams)
             env=EnvParams(
-                horizon=500,
+                horizon=self.sim_length,
                 additional_params=ADDITIONAL_ENV_PARAMS.copy(),
             ),
             # network-related parameters (see flow.core.params.NetParams and the
@@ -123,11 +130,11 @@ class HighwayCongested:
         self.deleteDataFile(self.csvFileName)
         return speedData
 
-    def processMacroData(self,csvFile):
+    def processMacroData(self,csvFile,position_for_count=800):
         highway_data = PFO.SimulationData(csv_path = csvFile)
         pos_dict = highway_data.get_Timeseries_Dict(data_id='TOTAL_POSITION',want_Numpy=True)
         vel_dict =highway_data.get_Timeseries_Dict(data_id='SPEED',want_Numpy=True)
-        position_for_count = 800 #radar reading position
+        position_for_count = position_for_count #radar reading position
         time_count_data = []  #array to store results
         vTime_array = [] # array to store (time, velocity) results
         for veh_id in highway_data.veh_ids:  #looping through all cars
