@@ -16,18 +16,20 @@ import Process_Flow_Outputs as PFO
 
 class HighwayCongested:
  
-    def __init__(self,params=[1.3, 2.0,30.0,4.0,1.6,2.0],
+    def __init__(self,wave_params=[1.3,2.0],flow_params=[30.0,1.0,4.0,2.0],
         fidelity=30,
-        sim_length=1000,
-        sim_step=.4):
-    
-        self.a = params[0]
-        self.b = params[1]
-        self.v0 = params[2]
-        self.T = params[4]
-        self.delta = params[3]
-        self.s0 = params[5]
-        self.noise = 0 #no noise
+        sim_length=2250,#15 minutes at step size of .4
+        sim_step=.4,
+        speed_limit=10.0,
+        additive_noise=0.0):
+
+        self.a = wave_params[0]
+        self.b = wave_params[1]
+        self.v0 = flow_params[0]
+        self.T = flow_params[1]
+        self.delta = flow_params[2]
+        self.s0 = flow_params[3]
+        self.noise = additive_noise #no noise
         self.fidelity = fidelity
         self.traffic_speed = 24.1
         self.traffic_flow = 2215
@@ -36,12 +38,12 @@ class HighwayCongested:
         self.additional_net_params = ADDITIONAL_NET_PARAMS.copy()
         self.additional_net_params['lanes'] =1
         self.additional_net_params['length'] = 1600
-        self.additional_net_params['end_speed_limit'] = 10.0
+        self.additional_net_params['end_speed_limit'] = speed_limit
         self.additional_net_params['boundary_cell_length'] = 100
         self.csvFileName = ""
         self.sim_step=sim_step
         self.sim_length=sim_length
-        self.
+        self.position_for_count = 800
         self.runSim()
 
     def addVehicles(self):
@@ -121,20 +123,20 @@ class HighwayCongested:
     def getCountsData(self):
         countsData, speedData = self.processMacroData(self.csvFileName)
         print("The counts are: ", countsData)
-        self.deleteDataFile(self.csvFileName)
+        # self.deleteDataFile(self.csvFileName)
         return countsData
 
     def getVelocityData(self):
         countsData, speedData = self.processMacroData(self.csvFileName)
         print("The speeds are: ", speedData)
-        self.deleteDataFile(self.csvFileName)
+        # self.deleteDataFile(self.csvFileName)
         return speedData
 
-    def processMacroData(self,csvFile,position_for_count=800):
+    def processMacroData(self,csvFile):
         highway_data = PFO.SimulationData(csv_path = csvFile)
         pos_dict = highway_data.get_Timeseries_Dict(data_id='TOTAL_POSITION',want_Numpy=True)
         vel_dict =highway_data.get_Timeseries_Dict(data_id='SPEED',want_Numpy=True)
-        position_for_count = position_for_count #radar reading position
+        position_for_count = self.position_for_count #radar reading position
         time_count_data = []  #array to store results
         vTime_array = [] # array to store (time, velocity) results
         for veh_id in highway_data.veh_ids:  #looping through all cars

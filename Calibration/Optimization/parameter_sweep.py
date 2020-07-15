@@ -14,6 +14,7 @@ sensitivity the calibration problem should
 
 import numpy as np
 import highway_free_flow as hff
+import highway_congested as hc
 import time, random, csv, os, sys
 # from scipy.optimize import Bounds
 # from scipy.optimize import minimize
@@ -28,27 +29,7 @@ real_sim = hff.HighwayFreeFlow(realistic_params)
 measured_counts = np.array(real_sim.getCountsData())
 measured_velocity = np.array(real_sim.getVelocityData())
 
-
 #function definitions
-def getSpeedError(params):
-    #This is a CALIBRATION objective
-    sim = hff.HighwayFreeFlow(params)
-    simmed_velocity = np.array(sim.getVelocityData())
-    simmed_speed, measured_speed = adjustSize(simmed_velocity, measured_velocity)
-    error_speeds = ((simmed_speed - measured_speed)**2).sum()
-    print("simmed params: ", params)
-    print("simmed speed error: " + str(error_speeds))
-    return error_speeds
-
-def getCountsError(params):
-    #This is a CALIBRATION objective
-    sim = hff.HighwayFreeFlow(params)
-    simmed_counts = np.array(sim.getCountsData())
-    simmed_count, measured_count = adjustSize(simmed_counts, measured_counts)
-    error_counts = ((simmed_count - measured_count)**2).sum()
-    print("simmed params: ", params)
-    print("simmed counts error: " + str(error_counts))
-    return error_counts
 
 def adjustSize(sim, real):
     real = list(real)
@@ -59,8 +40,38 @@ def adjustSize(sim, real):
         sim.pop()
     return [np.array(sim),np.array(real)]
 
-upper_bounds = [2.0,2.0]
-lower_bounds = [0.5,0.5]
+def selectNumSamples(simmed_measures,real_measures,num_samples_from_end):
+    simmed_measures, real_measures = adjustSize(simmed_measures,real_measures)
+    simmed_measures_trimmed = simmed_measures[-num_samples_from_end:]
+    real_measures_trimmed = real_measures[-num_samples_from_end:]
+    return [simmed_measures_trimmed,real_measures_trimmed]
+
+def getSpeedError(params,num_samples_from_end):
+    #This is a CALIBRATION objective
+    sim = hff.HighwayFreeFlow(params)
+    simmed_velocity = np.array(sim.getVelocityData())
+    # simmed_speed, measured_speed = adjustSize(simmed_velocity, measured_velocity)
+    simmed_speed, measured_speed = selectNumSamples(simmed_velocity, measured_velocity,num_samples_from_end)
+    error_speeds = ((simmed_speed - measured_speed)**2).sum()
+    print("simmed params: ", params)
+    print("simmed speed error: " + str(error_speeds))
+    return error_speeds
+
+def getCountsError(params,num_samples_from_end):
+    #This is a CALIBRATION objective
+    sim = hff.HighwayFreeFlow(params)
+    simmed_counts = np.array(sim.getCountsData())
+    # simmed_count, measured_count = adjustSize(simmed_counts, measured_counts)
+    simmed_count, measured_count = selectNumSamples(simmed_counts, measured_counts,num_samples_from_end)
+    error_counts = ((simmed_count - measured_count)**2).sum()
+    print("simmed params: ", params)
+    print("simmed counts error: " + str(error_counts))
+    return error_counts
+
+
+
+upper_bounds = [3.0,3.0]
+lower_bounds = [0.1,0.1]
 # bounds = Bounds(lower_bounds,upper_bounds) #No params should be negative
 
 # def getErrorDifference(params):
@@ -92,7 +103,7 @@ lower_bounds = [0.5,0.5]
 #     print("value of \"b\" parameter: ", b)
 #     return -a-b
 
-def sweep_params(num_samples=10,error_metric='Counts'):
+def sweep_params(num_samples=10,error_metric='Counts',num_samples_from_end=4):
     '''Gets the error values for a range of a and b values spanning the entire bounds'''
     a_range = np.linspace(lower_bounds[0],upper_bounds[0],num_samples)
     b_range = np.linspace(lower_bounds[1],upper_bounds[1],num_samples)
@@ -107,12 +118,12 @@ def sweep_params(num_samples=10,error_metric='Counts'):
     for a in a_range:
         for b in b_range:
             if(error_metric == 'Counts'):
-                error = getCountsError([a,b])
+                error = getCountsError([a,b],num_samples_from_end)
                 error_vals.append([a,b,error])
                 print('a: '+str(a)+' b: '+str(b)+' Count Error: '+str(error))
 
             else:
-                error = getSpeedError([a,b])
+                error = getSpeedError([a,b],num_samples_from_end)
                 error_vals.append([a,b,error])
                 print('a: '+str(a)+' b: '+str(b)+' Speed Error: '+str(error))
 
@@ -120,7 +131,7 @@ def sweep_params(num_samples=10,error_metric='Counts'):
 
     return error_vals
 
-error_vals = sweep_params(num_samples=15)
+error_vals = sweep_params(num_samples=10)
 
 np.savetxt('parameter_sweep.csv',error_vals)
 
