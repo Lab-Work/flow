@@ -16,6 +16,8 @@ a_range = [.2,3.0]
 
 num_a_samples = 15
 
+num_per_param_samples = 1
+
 a_vals = np.linspace(a_range[0],a_range[1],num_samples)
 
 a_vals = list(a_vals)
@@ -26,7 +28,6 @@ speeds = []
 num_samples_from_end = 15
 
 for a in a_vals:
-	#Simulatees many times using the same parameters to examine stochasticity in the model:
 	print('a value: '+str(a))
 	sim_params = [a,b_val]
 	sim_results = hc.HighwayCongested(wave_params=sim_params)

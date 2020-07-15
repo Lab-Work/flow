@@ -123,14 +123,15 @@ class HighwayCongested:
     def getCountsData(self):
         countsData, speedData = self.processMacroData(self.csvFileName)
         print("The counts are: ", countsData)
-        # self.deleteDataFile(self.csvFileName)
         return countsData
 
     def getVelocityData(self):
         countsData, speedData = self.processMacroData(self.csvFileName)
         print("The speeds are: ", speedData)
-        # self.deleteDataFile(self.csvFileName)
         return speedData
+
+    def destroyCSV(self):
+        self.deleteDataFile(self.csvFileName)
 
     def processMacroData(self,csvFile):
         highway_data = PFO.SimulationData(csv_path = csvFile)
