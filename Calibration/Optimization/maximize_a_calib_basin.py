@@ -18,6 +18,7 @@ import highway_free_flow as hff
 import time, random, csv, os, sys
 from scipy.optimize import Bounds
 from scipy.optimize import minimize
+from scipy.optimize import basinhopping 
 from scipy.optimize import NonlinearConstraint
 from scipy.optimize import SR1
 
@@ -112,5 +113,5 @@ def callbackF(params,status):
     Nfeval += 1
 
 #calls and starts the optimization routine
-sol = minimize(objective, calibrated_params, method="trust-constr", bounds=bounds, constraints=error_constraint, callback=callbackF, options={'verbose': 3, 'xtol': 1e-08})
+sol = basinhopping(objective, calibrated_params, niter=200, callback=callbackF) 
 print(sol.x)
