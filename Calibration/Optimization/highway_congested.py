@@ -130,6 +130,15 @@ class HighwayCongested:
         print("The speeds are: ", speedData)
         return speedData
 
+    def getMacroData(self,new_fidelity=None):
+        if(new_fidelity is not None):
+            self.fidelity = new_fidelity
+        countsData, speedData = self.processMacroData(self.csvFileName)
+        print("The speeds are: ", speedData)
+        print("The counts are: ", countsData)
+        return [speedData, countsData]
+
+
     def destroyCSV(self):
         self.deleteDataFile(self.csvFileName)
 
