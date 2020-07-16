@@ -32,7 +32,7 @@ class HighwayCongested:
         self.noise = additive_noise #no noise
         self.fidelity = fidelity
         self.traffic_speed = 24.1
-        self.traffic_flow = 2215
+        self.traffic_flow = 2215 #Fifteen minutes at step size of .4
         self.accel_data = (IDMController, {'a':self.a,'b':self.b,'noise':self.noise, 'v0':self.v0, 'T':self.T, 'delta':self.delta, 's0':self.s0})
         self.env_params = EnvParams(additional_params=ADDITIONAL_ENV_PARAMS)
         self.additional_net_params = ADDITIONAL_NET_PARAMS.copy()
@@ -50,6 +50,7 @@ class HighwayCongested:
         self.meanCounts = 0
         self.stdSpeed = 0
         self.stdCounts = 0
+        self.sim_csv_data = None
         self.runSim()
 
     def addVehicles(self):
@@ -126,6 +127,7 @@ class HighwayCongested:
         pd.read_csv(emission_location + '-emission.csv')
         self.csvFileName = emission_location+"-emission.csv"
         self.processMacroData(self.csvFileName)
+        self.sim_csv_data = PFO.SimulationData(csv_path = self.csvFileName)
 
     def getCountsData(self):
         countsData = self.countsData
@@ -165,8 +167,8 @@ class HighwayCongested:
         print("Std Dev Counts", self.stdCounts)
         return self.stdCounts
 
-    def processMacroData(self,csvFile):
-        highway_data = PFO.SimulationData(csv_path = csvFile)
+    def processMacroData(self):
+        highway_data = self.sim_csv_data
         pos_dict = highway_data.get_Timeseries_Dict(data_id='TOTAL_POSITION',want_Numpy=True)
         vel_dict =highway_data.get_Timeseries_Dict(data_id='SPEED',want_Numpy=True)
         position_for_count = self.position_for_count #radar reading position
@@ -190,6 +192,15 @@ class HighwayCongested:
         self.meanCounts = self.getMean(self.countsData)
         self.stdSpeed = self.getDev(self.speedData)
         self.stdCounts = self.getDev(self.countsData)
+
+    def getSpawnTimes(self):
+        vel_dict = highway_data.get_Timeseries_Dict(data_id='SPEED',want_Numpy=True)
+        start_times = 
+
+
+    def plotTimeSeries(self):
+
+
 
     def getMean(self, vals):
         return np.mean(vals)
