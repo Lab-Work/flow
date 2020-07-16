@@ -112,8 +112,8 @@ plt.legend()
 plt.ylabel('Average Speeds [m/s]')
 plt.xlabel('Measurement Number')
 plt.title('Affects of varying a')
-plt.show()
 plt.savefig("plot_v_a.png")
+plt.show()
 
 
 for i in range(len(a_vals)):
@@ -122,5 +122,5 @@ plt.legend()
 plt.ylabel('Average Counts')
 plt.xlabel('Measurement Number')
 plt.title('Affects of varying a')
-plt.show()
 plt.savefig("plot_q_a.png")
+plt.show()

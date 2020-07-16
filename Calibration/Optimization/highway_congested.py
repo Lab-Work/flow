@@ -16,7 +16,7 @@ import Process_Flow_Outputs as PFO
 
 class HighwayCongested:
  
-    def __init__(self,wave_params=[1.3,2.0],flow_params=[30.0,1.0,4.0,2.0],
+    def __init__(self,wave_params=[1.3],flow_params=[30.0,1.0,4.0,2.0],
         fidelity=30,
         sim_length=2250,#15 minutes at step size of .4
         sim_step=.4,
@@ -24,7 +24,7 @@ class HighwayCongested:
         additive_noise=0.0):
 
         self.a = wave_params[0]
-        self.b = wave_params[1]
+        self.b = 2.0 
         self.v0 = flow_params[0]
         self.T = flow_params[1]
         self.delta = flow_params[2]
@@ -44,6 +44,12 @@ class HighwayCongested:
         self.sim_step=sim_step
         self.sim_length=sim_length
         self.position_for_count = 800
+        self.speedData = []
+        self.countsData = []
+        self.meanSpeed = 0
+        self.meanCounts = 0
+        self.stdSpeed = 0
+        self.stdCounts = 0
         self.runSim()
 
     def addVehicles(self):
@@ -119,14 +125,15 @@ class HighwayCongested:
         emission_location = os.path.join(exp.env.sim_params.emission_path, exp.env.network.name)
         pd.read_csv(emission_location + '-emission.csv')
         self.csvFileName = emission_location+"-emission.csv"
+        self.processMacroData(self.csvFileName)
 
     def getCountsData(self):
-        countsData, speedData = self.processMacroData(self.csvFileName)
+        countsData = self.countsData
         print("The counts are: ", countsData)
         return countsData
 
     def getVelocityData(self):
-        countsData, speedData = self.processMacroData(self.csvFileName)
+        speedData = self.speedData
         print("The speeds are: ", speedData)
         return speedData
 
@@ -141,6 +148,22 @@ class HighwayCongested:
 
     def destroyCSV(self):
         self.deleteDataFile(self.csvFileName)
+
+    def getMeanSpeed(self):
+        print("Mean Speed ", self.meanSpeed)
+        return self.meanSpeed
+
+    def getMeanCounts(self):
+        print("Mean Counts ", self.meanCounts)
+        return self.meanCounts
+
+    def getStdSpeed(self):
+        print("Std Dev Speed ", self.stdSpeed)
+        return self.stdSpeed
+
+    def getStdCounts(self):
+        print("Std Dev Counts", self.stdCounts)
+        return self.stdCounts
 
     def processMacroData(self,csvFile):
         highway_data = PFO.SimulationData(csv_path = csvFile)
@@ -162,7 +185,17 @@ class HighwayCongested:
               vTime_array.append((pos_data[0,t],veh_data[1,t])) #(time stamp, velocity a  t time stamp) at which   car passes the radar point
         vTime_array.sort(key=lambda x: x[0])
         count_num, average_speed = self.countsEveryXSeconds(self.fidelity, vTime_array)
-        return count_num, average_speed
+        self.countsData, self.speedData = count_num, average_speed
+        self.meanSpeed = self.getMean(self.speedData)
+        self.meanCounts = self.getMean(self.countsData)
+        self.stdSpeed = self.getDev(self.speedData)
+        self.stdCounts = self.getDev(self.countsData)
+
+    def getMean(self, vals):
+        return np.mean(vals)
+
+    def getDev(self, vals):
+        return np.std(vals)
 
     def countsEveryXSeconds(self, x, sorted_counts, trim=False):
         i = 0

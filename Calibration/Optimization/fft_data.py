@@ -22,16 +22,20 @@ def getFFT(data,a_label):
     PSD = fhat * np.conj(fhat) / n
     freq = (1/(dt*n)) * np.arange(n)
     L = np.arange(1,np.floor(n/2),dtype="int") #for plotting first half (symmetry)
-    plt.title("Fast Fourier Transform of Speeds Data of size 15")
+    sns.set_palette(sns.color_palette("hls", 50))
+   # plt.title("Fast Fourier Transform of Speeds Data")
     plt.plot(freq[L],PSD[L],label="a = {}".format(a_label))
+    plt.plot(freq[L],PSD[L])
     plt.xlim(freq[L[0]],freq[L[-1]])
     plt.xlabel("Frequency")
     plt.ylabel("Power Spectrum")
     plt.legend()
 
 if __name__ ==  "__main__":
-    sns.set_palette(sns.color_palette("hls", 20))
-    a = np.linspace(0.3, 2, num=18)
+    a_range = [0.3,2.0]
+    num_a_samples = 18
+    num_per_param_samples = 1
+    a = np.linspace(a_range[0],a_range[1],num_a_samples,endpoint=True)
     df = pd.read_csv(dataFile)
     count = 0
     for row in df.itertuples(index = True, name ='Pandas'):
