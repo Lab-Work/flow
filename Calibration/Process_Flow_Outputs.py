@@ -5,7 +5,7 @@ from copy import deepcopy
 
 
 class SimulationData():
-    
+ 
     def __init__(self,csv_path):
         self.csv_path = csv_path
         self.veh_ids = []
@@ -13,7 +13,8 @@ class SimulationData():
         self.data_integrals = {}
         self.SimulationData_Dict = {}
         self.Extract_Data()
-        print('Data successfully loaded.')
+        #print('Data successfully loaded.')
+        print('Recording Macro data....')
             
         
         

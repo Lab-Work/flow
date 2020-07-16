@@ -4,6 +4,32 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
 
+speeds = np.array( list(np.array([12,14,15.41])), list(np.array([11,18,21.123])), list(np.array([0,8,18.6])) )
+a_vals = np.array([1,2,3])
+c = a_vals
+colors = plt.cm.coolwarm(c)
+for i in range(len(a_vals)):
+    plt.plot([x for x in range(speeds[i])], speeds[i], edgecolors=colors)
+plt.ylabel('Average Speeds [m/s]')
+plt.xlabel('Measurement Number')
+plt.title('Affects of varying a')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+
 x = np.array([1,2,3,4,53,21])
 
 def eror(vals, isCounts, stdv):
@@ -65,3 +91,5 @@ x,y = adjustSize(sim,real)
 
 print(x)
 print(y)
+
+"""

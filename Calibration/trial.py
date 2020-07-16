@@ -1,61 +1,67 @@
 import numpy as np
-import random
+import random, csv, time
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib import style
 
-data = ["a","b","noise","T","v0","delta","s0"]
+x = np.array([1,2,3,4,53,21])
 
-def createIDM(index, num, defaulData):
-    IDMParamSet = defaulData[:]
-    if index == 0: #a
-        options = list(np.linspace(1,5,num))
-        while len(options)!=0:
-            IDMParamSet[index] = options.pop(0)
-            print(IDMParamSet)
-    elif index == 1: #b
-        options = list(np.linspace(1,5,num))
-        while len(options)!=0:
-            IDMParamSet[index] = options.pop(0)
-            print(IDMParamSet)
-    elif index == 2:  #noise
-        options = list(np.linspace(0,2,num))
-        while len(options)!=0:
-            IDMParamSet[index] = options.pop(0)
-            print(IDMParamSet)
-    elif index == 3:  #v0
-        options = list(np.linspace(15,30,num))
-        while len(options)!=0:
-            IDMParamSet[index] = options.pop(0)
-            print(IDMParamSet)
-    elif index == 4:  #T
-        options = list(np.linspace(1,4,num))
-        while len(options)!=0:
-            IDMParamSet[index] = options.pop(0)
-            print(IDMParamSet)
-    elif index == 5:  #delta
-        options = list(np.linspace(2,6,num))
-        while len(options)!=0:
-            IDMParamSet[index] = options.pop(0)
-            print(IDMParamSet)
-    elif index == 6:  #s0
-        options = list(np.linspace(1,5,num))
-        while len(options)!=0:
-            IDMParamSet[index] = options.pop(0)
-            print(IDMParamSet)
-    return IDMParamSet
+def eror(vals, isCounts, stdv):
+    if isCounts:
+        y = np.round(np.random.normal(vals,stdv))
+        return np.where(y<0, 0, y) 
+    else:
+        y = np.random.normal(vals,stdv)
+        return np.where(y<0, 0, y) 
 
-"""
-index = determine which parameter to change
-num = 1) how many sets of that one change that needs to create
-      2) how a certain range is broken up
-algo:
-    save defaulData as a local var
-    create an array of size num using linspace for given index
-    for i in range(num):
-        lvar[index] = givar.pop()
-        print(lvar)
-"""
+#print(eror(x, True, 3))
+#print(eror(x, False, 4))
 
-num = 2
+def plotErrors(error):
+    timestr = time.strftime("%Y%m%d_%H%M%S")
+    csvName = "error" + ".csv"
+    with open(csvName, "a") as file:
+        writer = csv.writer(file)
+        writer.writerow([error])
 
-for i in range(len(data)):
-    createIDM(i,num,data)
+#plotErrors(12)
+#plotErrors(123)
+#plotErrors(3)
+#plotErrors(10)
 
+
+def animate():
+    graph_data = open('error.csv','r').read()
+    lines = graph_data.split('\n')
+    xs = []
+    ys = []
+    i = 0
+    for line in lines:
+        i += 1
+        if len(line) > 1:
+            x = float(line)
+            xs.append(float(x))
+            ys.append(i)
+    plt.plot(ys, xs)
+    plt.ylabel("Error")
+    plt.xlabel("Iteration")
+    plt.show()
+
+#animate()
+
+def adjustSize(sim, real):
+      while len(real) > len(sim):
+          real.pop()
+      while len(sim) > len(real):
+          sim.pop()
+      print(len(real))
+      print(len(sim))
+      return [sim,real]
+
+sim = [1,2,3,4,5,6,70,1,12]
+real = [0,1,2,3,4,5,6,2,1,12,22,7]
+
+x,y = adjustSize(sim,real)
+
+print(x)
+print(y)
