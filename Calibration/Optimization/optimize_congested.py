@@ -43,7 +43,8 @@ def objective(params):
     simmed_velocity = np.array(sim.getVelocityData())
     simmed_speed, measured_speed = selectNumSamples(simmed_velocity, measured_velocity, num_samples_from_end)
     error_speeds = ((simmed_speed - measured_speed)**2).sum()
-    print("simmed params: ", params)
+    print("simmed wave params [a,b]: ", sim.wave_params)
+    print("simmed other params [v0, T, delta, s0] : {} {} {} {} ".format(sim.v0, sim.T, sim.delta, sim.s0))
     print("speed error: " + str(error_speeds))
     saveErrors(error_speeds, params)
     sim.destroyCSV()
@@ -86,7 +87,7 @@ bnds = (a_bounds)
 def setGuessedParams():
     return [float(sys.argv[1]), float(sys.argv[2])]
 
-guess = [0.5] 
+guess = [1.0] 
 
 #optimize
 option = {"disp": True} 
