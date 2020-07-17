@@ -43,7 +43,7 @@ def objective(params):
     simmed_velocity = np.array(sim.getVelocityData())
     simmed_speed, measured_speed = selectNumSamples(simmed_velocity, measured_velocity, num_samples_from_end)
     error_speeds = ((simmed_speed - measured_speed)**2).sum()
-    print("simmed wave params [a,b]: ", sim.wave_params)
+    print("simmed wave params [a,b]: {} {}".format(sim.a, sim.b))
     print("simmed other params [v0, T, delta, s0] : {} {} {} {} ".format(sim.v0, sim.T, sim.delta, sim.s0))
     print("speed error: " + str(error_speeds))
     saveErrors(error_speeds, params)
@@ -77,9 +77,41 @@ def addError(vals, isCounts, stdv):
         y = np.random.normal(vals,stdv)
         return np.where(y<0, 0, y)
 
-def saveErrors(error, params):
-    with open('data/error_fatol_xatol_00001.csv', 'a') as f:
-        f.write(str(error)+","+str(params)+"\n")
+def getSpeedErrorVector(params):
+    sim = hc.HighwayCongested(wave_params=params)
+    simmed_velocity = np.array(sim.getVelocityData())
+    simmed_speed, measured_speed = selectNumSamples(simmed_velocity, measured_velocity, num_samples_from_end)
+    error_vector = abs(simmed_speed - measured_speed)
+    print("\tsimmed wave params [a,b]: {} {}".format(sim.a, sim.b))
+    print("\tsimmed other params [v0, T, delta, s0] : {} {} {} {} ".format(sim.v0, sim.T, sim.delta, sim.s0))
+    print("\tspeed error vector: " + str(error_vector))
+    sim.destroyCSV()
+    return error_vector
+
+def rmse(diff_vector):
+    return np.sqrt(np.mean((diff_vector)**2))
+
+def average_of_multiple_sims_objective(params, obj_func=getSpeedErrorVector,num_repeat=5):
+    rmse_vector = []
+    fname = open('data/error_vector.csv','ab')
+    while num_repeat != 0:
+        print("Sim number: ", 6-num_repeat)
+        vector = np.array(obj_func(params))
+        rmse_vector.append(rmse(vector))
+     #   saveErrors(vector, params,fname="error_vector.csv", delim=";")
+        np.savetxt(fname, [np.concatenate((params,vector))], delimiter=',',fmt='%2.5f')
+        num_repeat-=1
+    rmse_vector = np.array(rmse_vector)
+    mean_rmse = np.mean(rmse_vector)
+    print("RMSE vector: {}".format(rmse_vector))
+    print("Mean RMSE: {}".format(mean_rmse))
+    fname.close()
+    saveErrors(mean_rmse, params, fname="rmse_error.csv", delim=",")
+    return mean_rmse 
+
+def saveErrors(error, params, fname="error.csv", delim=","):
+    with open("data/"+fname, 'a') as f:
+        f.write(str(error)+delim+str(params)+"\n")
 
 #bounds
 a_bounds = (0.5,2)
@@ -97,8 +129,8 @@ def setGuessedParams():
 guess = [0.5] 
 
 #optimize
-option = {"disp": True, 'xatol': 0.00001, 'fatol': 0.00001}  #default values 0.0001
-sol = minimize(mean_objective, guess, method="Nelder-Mead", options=option)
+option = {"disp": True, "xatol": 0.01, "fatol": 0.01}  #default values 0.0001
+sol = minimize(average_of_multiple_sims_objective, guess, method="Nelder-Mead", options=option)
 
 #store the optimized params,counts and speeds
 opt_params = sol.x
