@@ -26,7 +26,7 @@ class ErrorPlotter:
         errors = errors[::self.readEvery]  #every other term
         params = params[::self.readEvery]
         x = [i+1 for i in range(len(errors))]
-        plt.plot(x, errors)
+        plt.plot(x, errors, '--o')
         num = self.readEvery*(len(errors)) -  1
         plt.ylabel("Error")
         plt.xlabel("Iteration")
