@@ -9,7 +9,7 @@ class ErrorPlotter:
         self.f1 = csv_file1
         self.f2 = csv_file2
         self.timestr = time.strftime("%Y%m%d_%H%M%S")
-        self.readEvery = 2
+        self.readEvery = 2 
         self.columns = 2
         self.num_sim = 5
         self.numParams = numParams
