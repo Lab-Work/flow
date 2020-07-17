@@ -53,13 +53,20 @@ def objective(params):
 def mean_objective(params):
     sim = hc.HighwayCongested(wave_params=params)
     simmed_mean_speed = sim.getMeanSpeed()
-    return abs(simmed_mean_speed - mean_original_speed)
+    error = abs(simmed_mean_speed - mean_original_speed)
+    print("error: ", error)
+    saveErrors(error, params)
+    sim.destroyCSV()
+    return error
 
 def lambda_objective(params,lamda=0.25):
     sim = hc.HighwayCongested(wave_params=params)
     simmed_mean_speed = sim.getMeanSpeed()
     simmed_std_speed = sim.getStdSpeed()
     error = (1-lamda)*abs(simmed_mean_speed - mean_original_speed) + lamda*abs(simmed_std_speed-std_original_speed)
+    print("error: ", error)
+    saveErrors(error, params)
+    sim.destroyCSV()
     return error
 
 def addError(vals, isCounts, stdv):
@@ -71,7 +78,7 @@ def addError(vals, isCounts, stdv):
         return np.where(y<0, 0, y)
 
 def saveErrors(error, params):
-    with open('data/error.csv', 'a') as f:
+    with open('data/error_fatol_xatol_001.csv', 'a') as f:
         f.write(str(error)+","+str(params)+"\n")
 
 #bounds
@@ -87,11 +94,11 @@ bnds = (a_bounds)
 def setGuessedParams():
     return [float(sys.argv[1]), float(sys.argv[2])]
 
-guess = [1.0] 
+guess = [0.5] 
 
 #optimize
-option = {"disp": True} 
-sol = minimize(objective, guess, method="Nelder-Mead", options=option)
+option = {"disp": True, 'xatol': 0.001, 'fatol': 0.001, 'adaptive':True} 
+sol = minimize(mean_objective, guess, method="Nelder-Mead", options=option)
 
 #store the optimized params,counts and speeds
 opt_params = sol.x
