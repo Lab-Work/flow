@@ -78,7 +78,7 @@ def addError(vals, isCounts, stdv):
         return np.where(y<0, 0, y)
 
 def saveErrors(error, params):
-    with open('data/error_fatol_xatol_001.csv', 'a') as f:
+    with open('data/error_fatol_xatol_00001.csv', 'a') as f:
         f.write(str(error)+","+str(params)+"\n")
 
 #bounds
@@ -97,7 +97,7 @@ def setGuessedParams():
 guess = [0.5] 
 
 #optimize
-option = {"disp": True, 'xatol': 0.001, 'fatol': 0.001, 'adaptive':True} 
+option = {"disp": True, 'xatol': 0.00001, 'fatol': 0.00001}  #default values 0.0001
 sol = minimize(mean_objective, guess, method="Nelder-Mead", options=option)
 
 #store the optimized params,counts and speeds

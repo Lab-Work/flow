@@ -6,7 +6,7 @@ timestr = time.strftime("%Y%m%d_%H%M%S")
 def plotError():
     errors = []
     params = []
-    with open("data/error_xatol.csv", "r") as csv_file:
+    with open("data/error_fatol_xatol_001.csv", "r") as csv_file:
         csv_reader = csv.reader(csv_file)
         for lines in csv_reader:
           param = lines[1].split("[")[1].split("]")[0] 
