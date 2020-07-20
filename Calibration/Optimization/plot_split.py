@@ -24,13 +24,12 @@ class Plotter:
         fileName = "figures/DualSpaceTimePlot.png"
         marker_size=1.0
         coloring_Attribute = 'SPEED'
-        plt.subplot(1, 2, 1)
         plot1 = data1.plot_Time_Space(coloring_Attribute=coloring_Attribute,edge_list=edge_list,lane_list=lane_list,clim=clim,fileName=fileName,time_range=time_range,pos_range=pos_range,marker_size=marker_size,multiple=True)
-        plt.tight_layout()
-        plt.show()
-        plt.subplot(1, 2, 2)
         plot2 = data2.plot_Time_Space(coloring_Attribute=coloring_Attribute,edge_list=edge_list,lane_list=lane_list,clim=clim,fileName=fileName,time_range=time_range,pos_range=pos_range,marker_size=marker_size,multiple=True)
-        plt.tight_layout()
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+        fig.suptitle('Space Time Diagrams')
+        ax1.scatter(plot1[0],plot1[1],s=plot1[2],c=plot1[3],marker=plot1[4])
+        ax2.scatter(plot2[0],plot2[1],s=plot2[2],c=plot2[3],marker=plot2[4])
         plt.show()
 
 if __name__ == "__main__":

@@ -211,29 +211,27 @@ class SimulationData():
                         c = color_data[n]
                         
                         if(t>=time_range[0] and t<=time_range[1] and x>=pos_range[0] and x<=pos_range[1]):
-                        
                             time_space_list.append([t,x])
                             color_list.append(c)
-                        
         data = np.array(time_space_list)
         color_data = np.array(color_list)
-                        
-        fig = pt.figure(figsize=(30, 30))
-        
-        sc = pt.scatter(data[:,0],data[:,1],s=marker_size,c=color_data,marker='.')
-        pt.grid()
-        pt.xlim(time_range)
-        pt.ylim(pos_range)
-        if(clim is not None):
-            pt.clim(clim)
-        pt.colorbar(sc)
-        pt.xlabel('Time [s]')
-        pt.ylabel('Position [m]')
-     #   pt.show() 
-        if(fileName is not None):
-            fig.savefig(fileName)
         if(multiple):
             return (data[:,0],data[:,1],marker_size,color_data,'.')
+        else:
+            fig = pt.figure(figsize=(30, 30))
+            sc = pt.scatter(data[:,0],data[:,1],s=marker_size,c=color_data,marker='.')
+            pt.grid()
+            pt.xlim(time_range)
+            pt.ylim(pos_range)
+            if(clim is not None):
+                pt.clim(clim)
+            pt.colorbar(sc)
+            pt.xlabel('Time [s]')
+            pt.ylabel('Position [m]')
+        #   pt.show() 
+            if(fileName is not None):
+                fig.savefig(fileName)
+            
 
             
     def trim_Timesries(self,data_id='SPEED',pos_range=None,time_range=None):
