@@ -26,10 +26,16 @@ class Plotter:
         coloring_Attribute = 'SPEED'
         plot1 = data1.plot_Time_Space(coloring_Attribute=coloring_Attribute,edge_list=edge_list,lane_list=lane_list,clim=clim,fileName=fileName,time_range=time_range,pos_range=pos_range,marker_size=marker_size,multiple=True)
         plot2 = data2.plot_Time_Space(coloring_Attribute=coloring_Attribute,edge_list=edge_list,lane_list=lane_list,clim=clim,fileName=fileName,time_range=time_range,pos_range=pos_range,marker_size=marker_size,multiple=True)
-        fig, (ax1, ax2) = plt.subplots(1, 2)
+        fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True)
         fig.suptitle('Space Time Diagrams')
-        ax1.scatter(plot1[0],plot1[1],s=plot1[2],c=plot1[3],marker=plot1[4])
-        ax2.scatter(plot2[0],plot2[1],s=plot2[2],c=plot2[3],marker=plot2[4])
+        im1 = ax1.scatter(plot1[0],plot1[1],s=plot1[2],c=plot1[3],marker=plot1[4])
+        im1.set_clim(clim)
+        ax1.set_ylabel("Position (m)")
+        im2 = ax2.scatter(plot2[0],plot2[1],s=plot2[2],c=plot2[3],marker=plot2[4])
+        im2.set_clim(clim)
+        ax2.set_xlabel("Time (s)")
+        plt.colorbar(im2)
+        plt.savefig(fileName)
         plt.show()
 
 if __name__ == "__main__":
