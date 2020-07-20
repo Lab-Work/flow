@@ -38,5 +38,5 @@ class ErrorPlotter:
 
 
 if __name__ == "__main__":
-    error = ErrorPlotter("data/rmse_error.csv", "data/error_vector.csv",1)
+    error = ErrorPlotter("data/rmse_mean_error_vector.csv", "data/error_vector_2.csv",1)
     error.plotErrorForSingleParam()

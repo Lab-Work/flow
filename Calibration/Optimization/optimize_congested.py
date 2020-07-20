@@ -81,7 +81,7 @@ def getSpeedErrorVector(params):
     sim = hc.HighwayCongested(wave_params=params)
     simmed_velocity = np.array(sim.getVelocityData())
     simmed_speed, measured_speed = selectNumSamples(simmed_velocity, measured_velocity, num_samples_from_end)
-    error_vector = abs(simmed_speed - measured_speed)
+    error_vector = simmed_speed - measured_speed
     print("\tsimmed wave params [a,b]: {} {}".format(sim.a, sim.b))
     print("\tsimmed other params [v0, T, delta, s0] : {} {} {} {} ".format(sim.v0, sim.T, sim.delta, sim.s0))
     print("\tspeed error vector: " + str(error_vector))
@@ -107,11 +107,31 @@ def average_of_multiple_sims_objective(params, obj_func=getSpeedErrorVector,num_
     print("Mean RMSE: {}".format(mean_rmse))
     fname.close()
     saveErrors(mean_rmse, params, fname="rmse_error.csv", delim=",")
-    return mean_rmse 
+    return mean_rmse
 
 def saveErrors(error, params, fname="error.csv", delim=","):
     with open("data/"+fname, 'a') as f:
         f.write(str(error)+delim+str(params)+"\n")
+
+def rmse_of_mean_error_vector(params,obj_func=getSpeedErrorVector,num_repeat=5):
+    rmse_vector = []
+    fname = open('data/trial_error_vector_2.csv','ab')
+    total_sims = num_repeat
+    while num_repeat != 0:
+        print("Sim number: ", 6-num_repeat)
+        vector = np.array(obj_func(params))
+        rmse_vector.append(vector)
+     #   saveErrors(vector, params,fname="error_vector.csv", delim=";")
+        np.savetxt(fname, [np.concatenate((params,vector))], delimiter=',',fmt='%2.5f')
+        num_repeat-=1
+    rmse_vector = np.array(rmse_vector)
+    mean_error_vector = (1.0 /total_sims) * rmse_vector.sum(axis=0)
+    mean_rmse = rmse(mean_error_vector)
+    print("Mean error vector: {}".format(mean_error_vector))
+    print("RMSE of mean error vector: {}".format(mean_rmse))
+    fname.close()
+    saveErrors(mean_rmse, params, fname="trial_rmse_mean_error_vector.csv", delim=",")
+    return mean_rmse
 
 #bounds
 a_bounds = (0.5,2)
@@ -130,7 +150,7 @@ guess = [0.5]
 
 #optimize
 option = {"disp": True, "xatol": 0.01, "fatol": 0.01}  #default values 0.0001
-sol = minimize(average_of_multiple_sims_objective, guess, method="Nelder-Mead", options=option)
+sol = minimize(rmse_of_mean_error_vector, guess, method="Nelder-Mead", options=option)
 
 #store the optimized params,counts and speeds
 opt_params = sol.x

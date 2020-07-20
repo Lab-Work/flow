@@ -1,0 +1,215 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+% Comments Section----------------------------------------
+\newcount\Comments  % 1 suppresses notes to selves in text
+\Comments=0   % TODO: set to 1 for final version
+\usepackage{color}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{purple}{rgb}{1,0,1}
+% \kibitz{color}{comment} inserts a colored comment in the text
+\newcommand{\kibitz}[2]{\ifnum\Comments=0\textcolor{#1}{#2}\fi}
+\newcommand{\Dan}[1]{\kibitz{darkgreen}      {[DBW: #1]}}
+\newcommand{\Yanbing}[1]{\kibitz{blue}      {[YW: #1]}}
+\newcommand{\ML}[1]{\kibitz{purple}      {[ML: #1]}}
+\newcommand{\George}[1]{\kibitz{cyan}      {[GG: #1]}}
+\newcommand{\edit}[1]{\kibitz{black}      {#1}}
+\newcommand{\newedit}[1]{\kibitz{black}      {#1}}
+%----------------------------------------------------------
+
+\urlstyle{same}
+
+\title{\textbf{Literature Review: Calibration of Traffic Microsimulation Models}}
+\date{June 2020}
+
+\begin{document}
+
+\maketitle
+\section{Meeting Notes}:
+\subsection{June 11th}
+\begin{itemize}
+    \item Question from Dan: There's a difference between what you're trying to solve and how you solve it. What are the performance metrics most commonly used?
+    \item shrinkage norm/shrinkage operator: Once error below threshold then stop paying attention -> used to account for noise. Has anyone already used the shrinkage operator?
+    \item Earthmover Distance (Wasserstein): Can't get correct at every instance, so instead take integral of flows over some times to try and create an error metric. 
+    \item In general can we innovate on what the metric 
+    \item First way to start would be to back off I24 and work on a toy example (single lane?) and generate some radar data via a certain set of inputs. 
+\end{itemize}
+
+\section*{Notes on Reviewed Literature}
+
+\textcolor{blue}{\cite{simplexCalib} method used: simplex algorithm ; microsim models: CORSIM and TRANSIMS; network anayzed: 23-km section of Interstate 10 in Houston, Texas ; parameters used: n/a ; test: not mentioned ; relevance: similar network(yes); important: analysis of results and description of usefulness of technique is important }
+
+\textcolor{blue}{ \cite{prinCalib} method used: n/a ; microsim model: n/a ; network anayzed: n/a ; parameters used: n/a ; test: n/a; relevance:general calibration techniques discussed (yes); important:good first material to start understanding calibration problems in microsim }
+
+
+\textcolor{blue}{\cite{neuralCalib} method used: Neural Networks; microsim model: VISSIM; network anayzed: roundabouts in urban area; parameters used: travel times, queue paramters at entrance to the intersection; test: data vs calibrated model vs uncalibrated model; relevance: not to highways as urban data (no), intersections (yes), use of NN (yes); important: result of the experiment}
+
+
+\textcolor{blue}{\cite{freeCalib} method used: GEH Flow calibration criteria, Relative Root Mean Square Error (RRMSE); microsim model: Aimsun and VISSIM ; network anayzed: ; parameters used: speed, flow, density, FDs; test: ; relevance: (yes) similar network ; important: good primary read to understand field data model calibration relation }
+
+
+\textcolor{blue}{ \cite{largeCalib} method used: application of large-scale agent-based model;  microsim model: (TRANSIMS); network anayzed: Buffalo-Niagara metropolitan area ; parameters used: acceleration, driver behavior, deceleration, weather influence (externality) ; test: not mentioned ; relevance: primarily focused on weather effects (no), behavior design (yes) ; important: methodology of model development may be useful }
+
+
+\textcolor{blue}{\cite{calibValid} method used: model results vs data ; microsim model: Paramics micro-simulation model ; network anayzed: sub- area in the City of Niagara Falls; parameters used: traffic volumes and turning movement counts at intersections,travel times and approach queues ; test: Chi- Squared statistic test ; relevance:different network (no), new model (yes) ; important: their benchmarking and calibration validity testing may be important also the concept of "detailed data" may be useful to testbed team }
+
+\textcolor{blue}{\cite{guidelinesCalib} method used: n/a ; microsim model: n/a ; network anayzed: n/a ; parameters used: n/a ; test: n/a; relevance:general calibration techniques discussed (yes); important:Excellent first material to start understanding calibration problems in microsim }
+
+\textcolor{blue}{ \cite{calibModeDis}method used: sim data vs TOTEMS data  ; microsim model: TransModeler with MOVES ; network anayzed: two streets in Burlington, Vermont: 1) a signalized urban arterial; and, 2) a stop-controlled urban collector; parameters used:  second-by-second location, speed and acceleration ; test: not mentioned ; relevance: similar research purpose(yes); important: understanding why free-flow params better than CF params in their study, guidelnes for default microsimulation free-flow model parameters are mentioned apparantly, quantification of the  accuracy of a test bed microsimulation model when used for a mobile emissions analysis is presented}
+
+\textcolor{blue}{\cite{congestedMicro} method used: data vs sim matching analysis ; microsim model: VISSIM ; network anayzed: 15-mi stretch of I-210 West in Pasadena, California; parameters used: ; test: ; relevance: (yes)  modifications to VISSIM’s driver behavior parameters led to accuracy of calibration, (yes) similar research project ; important: model development and calibration procedure would be important to us and other parts may be interesting to I24 testbed team}
+
+\textcolor{blue}{\cite{paramsCalib} method used: variance analysis ; microsim model: AIMSUN ; network anayzed: not sure ; parameters used: various ; test: statistical ; relevance: (yes) helpful in model development and compexity handling ; important: good secondary read for optimization}
+
+%store here end ==================================
+
+
+\section*{Literature Review}
+\subsection*{Calibrating Car-Following Models using Trajectory Data: Methodological Study  \label{}}
+\url{https://arxiv.org/pdf/0803.4063.pdf}
+The car-following behavior of individual drivers in real city traffic is studied on the basis of (publicly available) trajectory datasets recorded by a vehicle equipped with an radar sensor. By means of a nonlinear optimization procedure based on a genetic algorithm, we calibrate the Intelligent Driver Model and the Velocity Difference Model by minimizing the deviations between the observed driving dy- namics and the simulated trajectory when following the same leading vehicle. The reliability and robustness of the nonlinear fits are assessed by applying different optimization criteria, i.e., different measures for the deviations between two tra- jectories. The obtained errors are in the range between 11\% and 29\% which is consistent with typical error ranges obtained in previous studies. Additionally, we found that the calibrated parameter values of the Velocity Difference Model strongly depend on the optimization criterion, while the Intelligent Driver Model is more robust in this respect. By applying an explicit delay to the model input, we investigated the influence of a reaction time. Remarkably, we found a negligible influence of the reaction time indicating that drivers compensate for their reac- tion time by anticipation. Furthermore, the parameter sets calibrated to a certain trajectory are applied to the other trajectories allowing for model validation. The results indicate that “intra-driver variability” rather than “inter-driver variability” accounts for a large part of the calibration errors. The results are used to suggest some criteria towards a benchmarking of car-following models.
+
+
+
+\subsection*{Do We Really Need to Calibrate All the Parameters? Variance-Based Sensitivity Analysis to Simplify Microscopic Traffic Flow Models \label{}}
+\url{https://www.researchgate.net/publication/273391965_Do_We_Really_Need_to_Calibrate_All_the_Parameters_Variance-Based_Sensitivity_Analysis_to_Simplify_Microscopic_Traffic_Flow_Models}
+Automated calibration of microscopic traffic flow models is all but simple for a number of reasons, including the computational complexity of black-box optimization and the asymmetric importance of parameters in influencing model performances. The main objective of this paper is therefore to provide a robust methodology to simplify car-following models, that is, to reduce the number of parameters (to calibrate) without sensibly affecting the capability of reproducing reality. To this aim, variance-based sensitivity analysis is proposed and formulated in a “factor fixing” setting. Among the novel contributions are a robust design of the Monte Carlo framework that also includes, as an analysis factor, the main nonparametric input of car-following models, i.e., the leader's trajectory, and a set of criteria for “data assimilation” in car-following models. The methodology was applied to the intelligent driver model (IDM) and to all the trajectories in the “reconstructed” Next Generation SIMulation (NGSIM) I80-1 data set. The analysis unveiled that the leader's trajectory is considerably more important than the parameters in affecting the variability of model performances. Sensitivity analysis also returned the importance ranking of the IDM parameters. Basing on this, a simplified model version with three (out of six) parameters is proposed. After calibrations, the full model and the simplified model show comparable performances, in face of a sensibly faster convergence of the simplified version.
+
+\subsection*{A Microsimulation Model of a Congested Freeway using VISSIM \label{}}
+\url{https://horowitz.me.berkeley.edu/Publications_files/Papers_numbered/Conference/136c_Gomes_VISSIM_calibration_TRB2003.pdf}
+A procedure for constructing and calibrating a detailed model of a freeway using VISSIM is presented and applied to a 15-mile stretch of I-210 West in Pasadena, California. This test site provides several challenges for microscopic modeling: an HOV lane with an intermittent barrier, a heavy freeway connector, 20 metered onramps with and without HOV bypass lanes, and three interacting bottlenecks. Field data used as input to the model was compiled from two separate sources: loop-detectors on the onramps and mainline (PeMS), and a manual survey of onramps and offramps. Gaps in both sources made it necessary to use a composite data set, constructed from several typical days. FREQ was used as an intermediate tool to generate a set of OD matrices from the assembled boundary flows. The model construction procedure consists of: 1) identification of important geometric features, 2) collection and processing of traffic data, 3) analysis of the mainline data to identify recurring bottlenecks, 4) VISSIM coding, and 5) calibration based on observations from 3). A qualitative set of goals was established for the calibration. These were met with relatively few modifications to VISSIM's driver behavior parameters (CC-parameters).
+
+
+
+\subsection*{Simulation Optimization: Methods And Applications}
+\url{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.24.9192&rep=rep1&type=pdf}
+Simulation optimization can be defined as the process of
+finding the best input variable values from among all
+possibilities without explicitly evaluating each
+possibility. The objective of simulation optimization is to
+minimize the resources spent while maximizing the
+information obtained in a simulation experiment. The
+purpose of this paper is to review the area of simulation
+optimization. A critical review of the methods employed
+and applications developed in this relatively new area are
+presented and notable successes are highlighted. Simulation optimization software tools are discussed.
+The intended audience is simulation practitioners and theoreticians as well as beginners in the field of simulation.
+
+\subsection*{The Intelligent Driver Model: Analysis and Application to Adaptive Cruise Control}
+\url{https://tigerprints.clemson.edu/cgi/viewcontent.cgi?referer=&httpsredir=1&article=2936&context=all_theses}
+
+There are a large number of models that can be used to describe traffic flow. Although some were initially theoretically derived, there are many that were constructed with utility alone in mind. The Intelligent Driver Model (IDM) is a microscopic model that can be used to examine traffic behavior on an individual level with emphasis on the relation to an ahead vehicle. One application for this model is that it is easily molded to performing the operations for an Adaptive Cruise Control (ACC) system. Although it is clear that the IDM holds a number of convenient properties, like easily interpreted parameters, there is yet to be any rigorous examining of this model from a mathematical standpoint. This paper will place this model into the form of a vector-valued time-autonomous ODE system and analytically examine it. Additionally, the parameter estimation problem will be formulated. Simulations will demonstrate the model in practice.
+
+\subsection*{A Statistical Approach for Calibrating a Microsimulation Model for Freeways \cite{statsCalibMicro}}
+In this paper the calibration of a traffic microsimulation model based on speed-density relationships is presented. Hypothesis test was applied in the calibration process to measure the closeness between empirical data and simulation outputs and determine whether the difference between (observed and simulated) speed- density relationships was statistically significant. Statistical regressions between the variables of traffic flow were developed by using traffic data observed at the A22 Brenner Freeway, Italy. Similar relationships were obtained for a test freeway segment in uncongested conditions of traffic flow by using the Aimsun microscopic simulator; thus on field conditions were reproduced varying some selected parameters until a good match between measurement and simulation was achieved. %\url{https://pdfs.semanticscholar.org/a49c/2a368c9c2da1128d8753d52950d9b45373dc.pdf}
+
+\subsection*{Calibration of Microsimulation Models Using Nonparametric Statistical Techniques \cite{calibMicroNPST}
+}
+The calibration of traffic microsimulation models has received widespread attention in transportation modeling. A recent concern is whether these models can simulate traffic conditions realistically. The recent widespread deployment of intelligent transportation systems in North America has provided an opportunity to obtain traffic-related data. In some cases the distribution of the traffic data rather than simple measures of central tendency such as the mean, is available. This paper examines a method for calibrating traffic microsimulation models so that simulation results, such as travel time, represent observed distributions obtained from the field. The approach is based on developing a statistically based objective function for use in an automated calibration procedure. The Wilcoxon rank–sum test, the Moses test and the Kolmogorov–Smirnov test are used to test the hypothesis that the travel time distribution of the simulated and the observed travel times are statistically identical. The approach is tested on a signalized arterial roadway in Houston, Texas. It is shown that potentially many different parameter sets result in statistically valid simulation results. More important, it is shown that using simple metrics, such as the mean absolute error, may lead to erroneous calibration results.
+
+\subsection*{The principles of calibrating traffic microsimulation models \cite{prinCalib}} 
+Traffic microsimulation models normally include a large number of parameters that must be calibrated before the model can be used as a tool for prediction. A wave of methodologies for calibrating such models has been recently proposed in the literature, but there have been no attempts to identify general calibration principles based on their collective experience. The current paper attempts to guide traffic analysts through the basic requirements of the calibration of microsimulation models. Among the issues discussed here are underlying assumptions of the calibration process, the scope of the calibration problem, formulation and automation, measuring goodness-of-fit, and the need for repeated model runs. %\url{https://link.springer.com/article/10.1007/s11116-007-9156-2#citeas}
+
+
+
+\subsection*{Simplex-Based Calibration of Traffic Microsimulation Models with Intelligent Transportation Systems Data \cite{simplexCalib}
+}
+In recent years, microsimulation has become increasingly important in transportation system modeling. A potential issue is whether these models adequately represent reality and whether enough data exist with which to calibrate these models. There has been rapid deployment of intelligent transportation system (ITS) technologies in most urban areas of North America in the last 10 years. While ITSs are developed primarily for real-time traffic operations, the data are typically archived and available for traffic microsimulation calibration. A methodology, based on the sequential simplex algorithm, that uses ITS data to calibrate microsimulation models is presented. The test bed is a 23-km section of Interstate 10 in Houston, Texas. Two microsimulation models, CORSIM and TRANSIMS, were calibrated for two different demand matrices and three periods (morning peak, evening peak, and off-peak). It was found for the morning peak that the simplex algorithm had better results then either the default values or a simple, manual calibration. As the level of congestion decreased, the effectiveness of the simplex approach also decreased, as compared with standard techniques.
+
+
+
+\subsection*{ \cite{}}
+
+
+\subsection* {Calibration and Validation of a Micro-Simulation Model in Network Analysis \cite{calibValid}}
+This paper documents the calibration and validation efforts carried out as part of network analysis of a sub-area in the City of Niagara Falls using the Paramics micro-simulation model. The calibration effort involved comparing the model results to the field data that included not only link traffic volumes and turning movement counts at intersections but also measures of effectiveness such as average travel times and approach queues. Paramics uses a dynamic assignment procedure in which movements of vehicles through the network are governed by origin- destination matrices on the basis of various assignment techniques. For that reason the modeling exercise involved estimation of suitable origin-destination matrices which could replicate the observed traffic volumes and turning movement counts at selected intersections to acceptable levels. Target benchmarks were chosen and used as the basis of comparison between modeled and observed volumes using a modified Chi-Squared statistic test. Further model validation was conducted by comparing modeled and observed measures of effectiveness. It was found that target benchmarks that demonstrated an acceptable match between modeled and observed results were achieved with moderate calibration efforts. However, greater efforts are required to achieve marginal improvements in the accuracy of the model outputs and the ability of the model to predict the measures of effectiveness largely depended on the closeness of the match between observed and modeled traffic volumes. The study demonstrates that micro- simulation can be applied successfully to network analysis but notes that detailed data is required to conduct the calibration and validation of the model successfully. %\url{http://tsh.ca/pdf/TRB05_paper05_1938_final.pdf}
+
+\subsection*{Guidelines for Calibration of Microsimulation Models: Framework and Applications \cite{guidelinesCalib}
+}
+The past few years have seen a rapid evolution in the sophistication of traffic microsimulation models and a consequent major expansion of their use in transportation engineering and planning practice. Researchers and practitioners have employed an extensive array of approaches to calibrate these models and have selected a wide range of parameters to calibrate and a broad range of acceptance criteria. A methodical, top-down approach to model calibration is outlined; it focuses the initial effort on a few key parameters that have the greatest impact on model performance and then proceeds to less critical parameters to finalize the calibration. A three-step calibration/validation process is recommended. First, the model is calibrated for capacity at the key bottlenecks in the system (the capacity calibration step). Second, the model is calibrated for traffic flows at nonbottleneck locations in the system (the route choice calibration step). Finally, the overall model performance is calibrated against field-measured system performance measures such as travel time and delay (the system performance calibration step). This three-step process is illustrated in an example application for a freeway/arterial corridor.
+
+\subsection*{Calibrating a Traffic Microsimulation Model to Real-World Operating Mode Distributions \cite{calibModeDis} }
+This research seeks to understand how driver behavior parameters, as represented in one microsimulation package (TransModeler) can be modified to more closely match real-world vehicle operating characteristics for the purposes of emissions estimates with Motor Vehicle Emissions Simulator (MOVES). The calibration data for the research comes from a vehicle instrumented with the Total On-Board Tailpipe Emissions Measurement System (TOTEMS). TOTEMS generates a wealth of data, including a vehicle’s second-by-second location, speed and acceleration. Data from 41 trials of a conventional gasoline vehicle is used as the basis to compare with microsimulation model output for two streets in Burlington, Vermont: 1) a signalized urban arterial; and, 2) a stop-controlled urban collector. Adjustments to TransModeler car-following parameters could not adequately modify microsimulation vehicle operations to replicate the operational characteristics of the TOTEMS vehicles. However, adjustments to the free-flow model parameters were successful in more closely replicating real-world behavior. Specifically, default free-flow parameters governing the change in acceleration as a target link speed is approached were found to exaggerate driver aggressiveness. Guidelines were developed for adjusting default microsimulation free-flow model parameters to more accurately reflect the operating mode of a real-world vehicle using tailpipe CO and Particulate Matter (PM) 2.5 emission rates as comparison metrics. This research quantified the accuracy of a test bed microsimulation model when used for a mobile emissions analysis. For greater accuracy, analysts should be aware of the limitations of using the default free-flow microsimulation parameter values; the dependency of tailpipe emissions on acceleration rates suggest a need for improved microsimulation submodels and/or changes in default parameterizations to more accurately reflect real-world behavior.
+%\url{https://trid.trb.org/view/1287312}
+
+\subsection*{Congested Freeway Microsimulation Model Using VISSIM \cite{congestedMicro}
+}
+A procedure for constructing and calibrating a detailed model of a freeway by using VISSIM is presented and applied to a 15-mi stretch of I-210 West in Pasadena, California. This test site provides several challenges for microscopic modeling: a high-occupancy vehicle (HOV) lane with an intermittent barrier, a heavy freeway connector, 20 metered on-ramps with and without HOV bypass lanes, and three interacting bottlenecks. Field data used as input to the model were compiled from two separate sources: loop detectors on the on-ramps and main line (PeMS) and a manual survey of on-ramps and off-ramps. Gaps in both sources made it necessary to use a composite data set, constructed from several typical days. FREQ was used as an intermediate tool to generate a set of origin-destination matrices from the assembled boundary flows. The model construction procedure consists of (1) identification of important geometric features, (2) collection and processing of traffic data, (3) analysis of the main-line data to identify recurring bottlenecks, (4) VISSIM coding, and (5) calibration based on observations from Step 3. A qualitative set of goals was established for the calibration. These were met with relatively few modifications to VISSIM's driver behavior parameters.
+
+
+\subsection*{How Parameters of Microscopic Traffic Flow Models Relate to Traffic Dynamics in Simulation: Implications for Model Calibration \cite{paramsCalib}
+}
+Several methodological issues in setting up a calibration process for traffic microsimulation models are still unresolved. The influence of individual parameters of microscopic models on simulated traffic dynamics is also far from clear. To address those issues, the paper sets up a methodology based on the sensitivity analysis of traffic flow models (the one used here is AIMSUN). Sensitivity analysis was performed by means of a series of 30 analyses of variance. These were designed to evaluate the effect of parameters on the variance of the simulated outputs and to draw a general inference about (a) the proper interval for the aggregation of measurements, (b) the proper measure of performance (e.g., traffic counts versus speeds), (c) the proper traffic measurement locations, and (d) the subset of parameters to calibrate. The analysis allowed quantification of the effect of the single parameters on different traffic phases. For example, it was possible to quantify the extent of the influence of the parameter reaction time on simulated outputs in locations in which free flow, rather than congested conditions, occurs. The great differences between parameters in affecting the different traffic phases suggested that parameters are likely to be calibrated independently, that is, using data from different locations. The first evidence of the possibility of breaking the calibration problem into two subproblems is given. This entails great benefits in regard to computational time, given the exponential computational complexity of the calibration problem.
+
+
+\subsection*{Correlated Parameters in Driving Behavior Models: Car-Following Example and Implications for Traffic Microsimulation \cite{correlateCalib}
+}
+Behavioral parameters in car following and other models of driving behavior are expected to be correlated. An investigation is conducted into the effect of ignoring correlations in three parameters of car-following models on the resulting movement and properties of a simulated heterogeneous vehicle traffic stream. For each model specification, parameters are calibrated for the entire sample of individual drivers with Next Generation Simulation trajectory data. Factor analysis is performed to understand the pattern of relationships between parameters on the basis of calibrated data. Correlation coefficients have been used to show statistically significant correlation between the parameters. Simulation experiments are performed with vehicle parameter sets generated with and without considering such correlation. First, parameter values are sampled from the empirical mass functions, and simulated results show significant difference in output measures when parameter correlation is captured (versus ignored). Next, parameters are sampled under the assumption that they follow the multivariate normal distribution. Results suggest that the use of parametric distribution with known correlation structure may not sufficiently reduce the error due to ignoring correlation if the underlying assumption does not hold for both marginal and joint distributions.
+
+
+\subsection*{Genetic Algorithm-Based Optimization Approach and Generic Tool for Calibrating Traffic Microscopic Simulation Parameters \cite{geneticCalib}
+}
+GENOSIM is a generic traffic microsimulation parameter optimization tool that uses genetic algorithms and was implemented in the Port Area network in downtown Toronto, Canada. GENOSIM was developed as a pilot software as part of the pursuit of a fast, systematic, and robust calibration process. It employs the state of the art in combinatorial parametric optimization to automate the tedious task of hand calibrating traffic microsimulation models. The employed global search technique, genetic algorithms, can be integrated with any dynamic traffic microscopic simulation tool. In this research, Paramics, the microscopic traffic simulation platform currently adopted at the University of Toronto Intelligent Transportation Systems Centre, was used. Paramics consists of high-performance, cross-linked traffic models that have multiple user adjustable parameters. Genetic algorithms in GENOSIM manipulate the values of those control parameters and search for an optimal set of values that minimize the discrepancy between simulation output and real field data. Results obtained by replicating observed vehicle counts are promising.
+
+\subsection*{Freeway Micro-simulation Calibration: Case Study Using Aimsun and VISSIM with Detailed Field Data \cite{freeCalib}}
+A microscopic simulation model is needed to support the development of Variable Speed Limit/Advisory (VSL/VSA) and Speed Harmonization algorithms. The prospective algorithms will be field implemented and tested so the model needs to match the real traffic conditions well before the algorithm can be developed. Detailed field data were collected at key locations along the freeway mainline and onramps and off-ramps for over a week, including flow, speed and occupancy. The compatibility of the data at all locations has been cross-checked by flow conservation, which is accurate enough for system modeling. Simulation models have been built in both Aimsun and VISSIM and quantitatively calibrated. Both flow and speed should be matched at critical locations. The calibration criteria for flow include GEH Flow calibration criteria, Relative Root Mean Square Error (RRMSE), and accumulated flow; and for speed the Fundamental diagram is used. Simulation results are presented, showing that the two models match the field data at critical locations reasonably well. 
+
+
+\section{Some thoughts on calibrating the IDM}
+The IDM is written as~\cite{treiber}:
+
+\begin{equation}
+    \dot{v}_{\text{IDM}}=a\left[1-\left(\frac{v}{v_{0}}\right)^{4}-\left(\frac{s^{*}\left(v,\Delta v\right)}{s}\right)^{2}\right]
+\end{equation}
+\Dan{needs cleaned up to add all the descriptions of the parameters...}
+
+with 
+\begin{equation}
+    s^{*}\left(v,\Delta v\right)=s_{0}+vT+\frac{v\Delta v}{2\sqrt{ab}}
+\end{equation}
+
+
+Fact. at equilibrium we have 
+\begin{equation}
+ s_{e}\left(v\right)=\frac{s_{0}+vT}{\sqrt{1-\left(\frac{v}{v_{0}}\right)^{4}}}   
+\end{equation}
+
+
+and consequently $\rho(v)=\frac{1}{s_{e}(v)+l}$ where $l$ is the
+average length of the cars. Since $Q(v)=v*\rho(v)$ we see that 
+\begin{equation}
+Q(v)=\frac{v}{\frac{s_{0}+vT}{\sqrt{1-\left(\frac{v}{v_{0}}\right)^{4}}}+l}\label{eq:Q(v)}
+\end{equation}
+ Note (\ref{eq:Q(v)}) is a flow velocity function, which are the
+two quantities directly measured by radar units. The function depends
+on the following parameters: $s_{0},v_{0},T.$ It does not depend
+on $a$ or $b.$ Thus the counts and speeds at the macro level do
+not depend on $a$ or $b$ at equilibrium. 
+
+How sensitive are the counts to parameters? We can compute partial
+derivatives: 
+\begin{equation}
+    \frac{\partial Q(v)}{\partial s_{0}}=-\frac{v\sqrt{1-\left(\frac{v}{v_{0}}\right)^{4}}}{\left(l\sqrt{1-\left(\frac{v}{v_{0}}\right)^{4}}+s_{0}+Tv\right)^{2}}
+\end{equation}
+\Dan{One can do this for the other parameters. One can optimize to find the parameters and v that are as sensitive as possible, or as insensitive as possible. If both the min and the max are big, we know the parameter is identifiable from count data. If the min and max are tiny, we know we are dead, no identification is possible. If there are some settings where it is sensitive and some where it is not, this is just good to know... }
+
+\bibliographystyle{unsrt}
+\bibliography{refs.bib}
+
+\end{document}
+

@@ -235,7 +235,7 @@ class SimulationData():
         pt.colorbar(sc)
         pt.xlabel('Time [s]')
         pt.ylabel('Position [m]')
-        pt.show() 
+     #   pt.show() 
         if(fileName is not None):
             fig.savefig(fileName)
             

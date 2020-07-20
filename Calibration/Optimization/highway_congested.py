@@ -13,16 +13,18 @@ import numpy as np
 import pandas as pd
 import os, sys
 import Process_Flow_Outputs as PFO
+import time
 
 class HighwayCongested:
  
     def __init__(self,wave_params=[1.3],flow_params=[30.0,1.0,4.0,2.0],
         fidelity=30,
-        sim_length=2250,#15 minutes at step size of .4
+        sim_length=225,#15 minutes at step size of .4
         sim_step=.4,
         speed_limit=10.0,
         additive_noise=0.0):
-
+        
+        self.timeCreated = time.strftime("%Y%m%d_%H%M%S")
         self.a = wave_params[0]
         self.b = 2.0 
         self.v0 = flow_params[0]
@@ -181,6 +183,20 @@ class HighwayCongested:
         self.meanCounts = self.getMean(self.countsData)
         self.stdSpeed = self.getDev(self.speedData)
         self.stdCounts = self.getDev(self.countsData)
+        self.generateSpaceTimeDiagram(highway_data)
+
+    def generateSpaceTimeDiagram(self, data):
+        #time module to save name
+        edge_list = ['highway_0']
+        lane_list = ['0']
+        time_range = [0,self.sim_length]
+        pos_range = [0,self.additional_net_params['length']]
+        clim = [0,30]
+        fileName = "figures/space_time_plots/SpaceTimePlot_" + str(self.timeCreated) + ".png"
+        marker_size=1.0
+        coloring_Attribute = 'SPEED'
+        data.plot_Time_Space(coloring_Attribute=coloring_Attribute,edge_list=edge_list,lane_list=lane_list,clim=clim,fileName=fileName,time_range=time_range,pos_range=pos_range,marker_size=marker_size)
+        print("Space-Time diagram created and saved: ", fileName)    
 
     def getMean(self, vals):
         return np.mean(vals)

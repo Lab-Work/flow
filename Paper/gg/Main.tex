@@ -1,0 +1,356 @@
+\documentclass[english,titlepage,oneside,12pt]{article}
+\usepackage[T1]{fontenc}
+%\usepackage[latin9]{inputenc}
+\usepackage{graphicx}
+\usepackage{setspace}
+%\usepackage{caption}
+%\usepackage{subcaption}
+%\usepackage{subfigure}
+\usepackage{booktabs} %for nice tables
+\usepackage{algpseudocode}
+%\usepackage{algorithm}
+\usepackage{algorithm2e}
+\usepackage{float}
+\newfloat{algorithm}{t}{lop}
+\usepackage{eqparbox}
+\usepackage{multicol}
+\usepackage{gensymb}
+\usepackage{booktabs}
+
+\graphicspath{ {./Images/} }
+
+%\usepackage{lineno}
+
+
+\usepackage{url}
+\usepackage{color}
+\usepackage{multirow}
+\usepackage{mathtools}
+
+\makeatletter
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+
+\oddsidemargin 0.0in
+\topmargin -0.5in
+\headheight 0.3in
+\headsep 0.2in
+\textwidth 6.5in
+\textheight 9.0in
+\setlength{\parindent}{0.5in}
+
+% PAGE HEADER
+%------------------------------------------
+% Adjust the header text below (INSERT AUTHORS HERE)
+\oddsidemargin 0.0in
+\usepackage[tiny,rm]{titlesec}
+\newpagestyle{trbstyle}{
+\sethead{Wang, Gunter, Nice, and Work}{}{\thepage} %insert the names here. I just put couple of them to show where they should be.
+}
+\pagestyle{trbstyle}
+
+% HEADINGS
+%------------------------------------------
+\renewcommand*{\refname}{\uppercase{References}}
+\titleformat{\section}{\bfseries}{}{0pt}{\uppercase}
+\titlespacing*{\section}{0pt}{12pt}{*0}
+\titleformat{\subsection}{\bfseries}{}{0pt}{}
+\titlespacing*{\subsection}{0pt}{12pt}{*0}
+\titleformat{\subsubsection}{\itshape}{}{0pt}{}
+\titlespacing*{\subsubsection}{0pt}{12pt}{*0}
+
+% LISTS
+%------------------------------------------
+% Adjust lists a little. Not quite perfectly fitting TRB style, but vaguely
+% close at least.
+\usepackage{enumitem}
+\setlist[1]{labelindent=0.5in,leftmargin=*}
+\setlist[2]{labelindent=0in,leftmargin=*}
+
+% CAPTIONS
+%------------------------------------------
+% Get the captions right. Authors must still be careful to use "Title Case"
+% for table captions, and "Sentence case." for figure captions.
+%\usepackage{ccaption}
+\usepackage{amsmath}
+%\makeatletter
+\renewcommand{\fnum@figure}{\textbf{FIGURE~\thefigure} }
+\renewcommand{\fnum@table}{\textbf{TABLE~\thetable} }
+%\makeatother
+%\captiontitlefont{\bfseries \boldmath}
+%\captiondelim{\;}
+%\precaption{\boldmath}
+
+
+% CITATIONS
+%------------------------------------------
+% TRB uses an Author (num) citation style. I haven't found a way to make
+% LaTeX/Bibtex do this automatically using the standard \trbcite macro, but
+% this modified \trbcite macro does the trick.
+
+% sort&compress option?
+\usepackage[sort,numbers]{natbib}
+%\newcommand{\trbcite}[1]{\citeauthor{#1} [{\citenum{#1}}]}
+%%% RES edit: the above command was used in the orignal citation style, the bottom command has been edited to meet the TRB guidelines.
+%\newcommand{\trbcite}[1]{[{\citenum{#1}}]}
+\newcommand{\trbcite}[1]{(\textit{{\citenum{#1}}})}
+%\setcitestyle{round}
+
+
+
+
+
+% COUNTERS
+%------------------------------------------
+% TRB requires the total number of words, figures, and tables to be displayed on
+% the title page. This is possible under the totcount package on CTAN.
+\usepackage{calculator}
+\usepackage{totcount}
+\regtotcounter{table} 	%count tables
+\regtotcounter{figure} 	%count figures
+
+
+% FONTS
+%------------------------------------------
+% Times for text and math
+%\usepackage{mathptmx}
+\usepackage{newtxtext,newtxmath}
+
+% Some pdf conversion tricks? Unsure.
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+% Fonts will be broken by Sweave without this option
+%\usepackage[noae]{Sweave}
+
+
+% OTHER PACKAGES
+%------------------------------------------
+% Add any additional \usepackage declarations here.
+
+\usepackage{graphicx}
+% LINE NUMBERING
+%------------------------------------------
+% TRB likes line numbers on drafts to help reviewers refer to parts of the
+% document. The numbering is activated with the \linenumbers command immediately
+% after \begin{document} You may need to install the lineno  package from CTAN.
+\usepackage[pagewise]{lineno}
+\renewcommand\linenumberfont{\normalfont\small}
+\date{} 
+
+%\@ifundefined{showcaptionsetup}{}{%
+% \PassOptionsToPackage{caption=false}{subfig}}
+\usepackage{subfig}
+\makeatother
+
+
+
+\newcommand{\pluseq}{\mathrel{+}=}
+
+
+% Comments Section----------------------------------------
+\newcount\Comments  % 1 suppresses notes to selves in text
+\Comments=1   % TODO: set to 1 for final version
+\usepackage{color}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{purple}{rgb}{1,0,1}
+% \kibitz{color}{comment} inserts a colored comment in the text
+\newcommand{\kibitz}[2]{\ifnum\Comments=1\textcolor{#1}{#2}\fi}
+\newcommand{\Dan}[1]{\kibitz{darkgreen}      {[DBW: #1]}}
+\newcommand{\George}[1]{\kibitz{cyan}      {[GG: #1]}}
+\newcommand{\Yanbing}[1]{\kibitz{blue}      {[YW: #1]}}
+\newcommand{\edit}[1]{\kibitz{red}      {#1}}
+%----------------------------------------------------------
+
+
+\usepackage{babel}
+\begin{document}
+\thispagestyle{empty}
+\title{TITLE}
+
+%\begin{spacing}{0.20000000000000001}
+\author{
+{\large George Gunter (corresponding author)}\vspace{-1ex}\\
+{\normalsize Department of Civil and Environmental Engineering}\vspace{-1ex}\\
+{\normalsize Institute for Software Integrated Systems}\vspace{-1ex}\\
+{\normalsize Vanderbilt University }\vspace{-1ex}\\
+{\normalsize 1025 16th Avenue South}\vspace{-1ex}\\
+{\normalsize Nashville, TN 37212 }\vspace{-1ex}\\
+{\normalsize george.l.gunter@vanderbilt.edu }\\
+{\normalsize{} }\\
+
+{\large Daniel B. Work}\vspace{-1ex}\\
+{\normalsize Department of Civil and Environmental Engineering}\vspace{-1ex}\\ 
+{\normalsize Institute for Software Integrated Systems}\vspace{-1ex}\\
+{\normalsize Vanderbilt University }\vspace{-1ex}\\
+{\normalsize 1025 16th Avenue South}\vspace{-1ex}\\
+{\normalsize Nashville, TN 37212 }\vspace{-1ex}\\
+{\normalsize{} }\\
+%{\normalsize \wordcount words + \total{figure} figures \res{figures don't count anymore} + \total{table} tables = \Dan{fill in} words}}
+{\normalsize \wordcount words + \total{table} table = 6550 words}}
+\thispagestyle{empty}
+
+\maketitle
+
+\newpage
+
+\thispagestyle{empty}
+\section{Abstract}\label{sec:Abstract}
+
+In this work the problem of calibrating microscopic car-following parameters using aggregated traffic data, of the form collected by RDS sensors, is explored. In particular, the calibration of parameters that are not observable via historical macroscopic data (i.e. the Fundamental Diagram) is considered, and it is found that based on a naive objective function comparing time-series values and a common simulation-based optimization routine, known parameters cannot be recovered accurately. An improved objective function that utilizes statistics from both the time-domain and the frequency-domain is proposed that is better able to better recover the parameters. It is also found that parameter values with significant instabilities of the form that produce phantom traffic jams are more easily recovered than those with small or no instabilities. Finally a robustness analysis is run that varies hyper-parameters of the model.\George{This needs a lot of work.}
+
+\section{Introduction}\label{sec:Introduction}
+
+
+\subsection{Overview}\label{sec:Overview}
+
+Calibration of models from measured data is a core problem in all of transportation and traffic engineering and science. In general this problem is concerned with finding numerical values for otherwise unknown parameters within a model, such that the model then reproduces recorded data well. Many works have explored this problem in traffic modeling both from a macroscopic standpoint and a microscopic standpoint, where in macroscopic modeling aggregate properties of the traffic flow are modeling, and in microscopic, modeling the behavior of individual vehicles is of concern. \George{[CITATIONS HERE]}
+
+\subsection{Related Works}\label{sec:Related_Works}
+
+In general micro-scopic traffic models (MiS-TMs) have many degrees of freedom in their modeling choices and parameters and as such the calibration problem can be extremely challenging. \George{[TALK ABOUT DIFFERENT MICRO CALIBRAITON PROBLEMS: Inflows/Origin-Destination/On-ramps][CITATIONS FOR DIFFERENT ATTEMPTS].}  
+
+Over the last decade much academic effort has been spent on measuring and modeling so-called phantom traffic jams~\cite{Sugiyamaetal2008,treiber2000congested}. Famously,~\cite{Sugiyamaetal2008} showed experimentally in the context of ring-road environment that these traffic jams can form from no outside interference.
+
+Mathematically, these waves are the result of underlying dynamic instability in the traffic flow, commonly referred to as string-instability. This refers to when a small perturbation (possible a vehicle braking too much) to a homogeneous traffic stream at equilibria will grow in size as it is transferred from vehicle to vehicle. These instabilities have been shown to increase fuel consumption and emissions, and even decrease throughput on roadways~\cite{stern2018emissions,wu2018tracking}.
+
+Of more recent interest have been proposals for different technologies to mitigate phantom waves, or "smooth out the traffic". In ~\cite{stern2017dissipation} it was shown that a low penetration rate of Automated Vehicles executing a simple 
+
+\George{Talk about car-following models and what string-stability is in that context[CITE Wilson-Ward,Monteil]. Include note about how a different calibration problem is that of trying to recover CF model params s.t. that individual trajectories are optimally found.}
+
+In addition to the calibration problems previously discussed for MiS-TMs, the correct selection of car-following model parameters has also been of interest. While many aspects of an MiS-TM are plausibly independent of the selected car-following model and parameters, traffic flow equilibria, commonly described by the Fundamental Diagram (FD), are determined by this selection. In addition to determining the FD, the car-following behavior is also responsible for whether or not phantom waves will be present in a simulation or not.
+
+\George{Talk about how micro-simulation models use car-following?}
+
+\George{Talk about how traffic is typically measured using aggregated measurements, such as count and average speed. Talk about what can be measured in that context, i.e. typically the fundamental diagram.} The extent to which wave-characteristics for car-following models can be extracted from this type of data is as of yet a relatively unexplored area. This work specifically explores that question.
+
+\subsection{Contributions}\label{sec:Contributions}
+
+\George{Talk about contribution of this work.}
+
+The outline of this work is as follows.
+
+\section{Methods}\label{Methods}
+
+In this section different aspects of the calibration problem are described. First a general definition of car-following models is given, and the specific model type used in this work is described. The geometry of the 
+
+
+\subsection{Car-Following models}
+Car-following models have been the subject of significant research over the span of traffic engineering history. In order to describe the trajectories of individual vehicles they model each vehicle as an ordinary-differential equation that either outputs a vehicles velocity (first order models), or its acceleration (second-order models). In this work acceleration based car-following models are considered.
+
+These models are of the form:
+\begin{equation}\label{eq:cfmodel}
+    \dot{v}_{i}(t) = f(\theta,s_{i}(t), v_{i}(t), \Delta v_{i}(t))
+\end{equation}
+
+Where $f(\theta,s_{i}(t), v_{i}(t), \Delta v_{i}(t))$ is the acceleration at time-step...\George{[FILL IN]}
+
+In this work the specific car-following model that is used is the commonly utilized Intelligent Driver Model (IDM) proposed in~\cite{treiber2000congested} and~\cite{kesting2010enhanced}. This model is of the form:
+
+\begin{equation}\label{eq:IDM_Equation}
+    f(\theta,s,v,\Delta v)_{\text{IDM}} =a\left[1-\left(\frac{v}{v_{0}}\right)^{\delta}-\left(\frac{s^{*}\left(v,\Delta v\right)}{s}\right)^{2}\right]
+\end{equation}
+
+and where:
+
+\begin{equation}\label{eq:IDM_Spacing_Equation}
+    s^{*}\left(v,\Delta v\right)=s_{0}+vT+\frac{max(0,v\Delta v)}{2\sqrt{ab}}
+\end{equation}
+
+The IDM has six parameters, $\boldsymbol{\theta} = [a,b,v0,T,delta,s0]$. Of these, $v0,T,delta$ and $s0$ determine the FD of the traffic flow. While $a$ and $b$ do no affect the FD they still have an affect on the traffic flow dynamics: namely they can shift at which equilibria string-instability can occur. In figure \George{[FIGURE REFERENCE HERE]} two FDs are displayed which come from models with the same set of $v0,T,delta$ and $s0$, but different $a$ and $b$ and the regions in which the models are string-unstable are marked in red, while stable regions are marked in blue. From there it can be seen that the choice of $a=1.5$ and $b=2.0$ leads to instabilities at higher flow-rates than $a=1.0$ and $b=2.0$. \George{These parameters might change}
+
+[FIGURE: Showing two FDs with stability regions marked for the same choices of v0,T,delta,s0 and different a,b to show how they can shift where waves occur] 
+
+To demonstrate this phenomena of $a$ and $b$ shifting the boundaries over which phantom-waves can occur figure \George{[FIGURE REFERENCE HERE]} shows the time-space diagram for the two models at the same Flow/Density equilibria, where the first model is string-unstable and the second is not.
+
+[FIGURE: Showing time-space plots from the two different parameter sets]
+
+In this work the main consideration is the selection of $a$ and $b$, as these are the parameters that cannot be estimated from FD data. As a result the parameter set for the model parameters that can be estimated from FD are fixed at a recommended set from the literature, corresponding to $[v0,T,delta,s0]=[30,1.5,4.0,2.0]$.
+
+\subsection{Network Geometry}
+For any MiS-TM an integral part of the model is the geometry of the network over which vehicles are simulated. Since the scope of this work is primarily to consider the calibration of car-following parameters a single-lane, single edge roadway is chosen as the geometry of consideration. This choice means that no lane-changing logic, or Origin/Destination pairs will be needed in order for the simulation, effectively limiting the number of MiS-TM parameters to just those related to car-following. 
+
+It is worth noting that while this is a narrow scope in terms of the broader area of MiS-TM calibration, this problem is still a necessary problem to solve in more complicated environments, and is sure to be just as difficult, if not more so. As such in order to understand fundamental issues with just this aspect of the calibration problem, the setup is specifically narrowed as much as possible to just relevant challenges.
+
+The relevant features of this network setup for the problem are displayed in figure 
+
+\George{[FIGURE: Graphic similar to what I have in the presentation for showing the single lane]}
+
+\George{Discuss the different hyper-parameters related to the network: total length, position of the sensor, inflow rate, bottleneck speed }
+
+\George{Question: Do we need to explain how congested traffic is simulated?}
+
+\subsection{Aggregated measurement model}
+The most common method by which traffic states are measured is through the collection of aggregated point measurements, of the type that radar units record. These units report
+
+\George{[FIGURE:two plots showing the aggregated speeds and counts at a 30 second interval from the two model parameters chosen above.]}
+
+\George{[FIGURE:Replicate the previous two but aggregate at longer time step s.t. fidelity is lost?]}
+
+
+\subsection{Optimization}
+
+\begin{equation}\label{eq:Calibration_Optimization_Problem}
+\begin{array}{rl}
+\underset{\theta}
+{{\text{minimize}}}: & E(Q_{real},Q_{sim})\\
+\text{subject to:}
+ & Q_{sim} = F_{model}(\theta,\lambda)
+\end{array}
+\end{equation}
+
+
+
+% \section{Calibration of microscopic traffic models using macroscopic data}
+% In this section we describe 
+% \subsection{Macroscopic data}
+% Discuss what data we get from radar data
+
+% \subsection{Car-following models}
+% TODO: Define generally what a car-following model is.
+
+% \begin{equation}\label{eq:cfmodel}
+%     \dot{v}_{i}(t) = f(\theta,s_{i}(t), v_{i}(t), \Delta v_{i}(t))
+% \end{equation}
+
+% \begin{equation}\label{eq:IDM_Equation}
+%     f(\theta,s,v,\Delta v) = \dot{v}_{\text{IDM}}=a\left[1-\left(\frac{v}{v_{0}}\right)^{\delta}-\left(\frac{s^{*}\left(v,\Delta v\right)}{s}\right)^{2}\right]
+% \end{equation}
+
+% \begin{equation}\label{eq:IDM_Spacing_Equation}
+%     s^{*}\left(v,\Delta v\right)=s_{0}+vT+\frac{v\Delta v}{2\sqrt{ab}}
+% \end{equation}
+
+% \subsection{The calibration problem}
+% TODO: Write down mathematical definition of the calibration problem
+
+% \begin{equation}\label{eq:CalibrationProblem}
+% \begin{array}{rl}
+% \underset{\theta}
+% {{\text{minimize}}}: & E(Q_{real},Q_{sim})\\
+% \text{subject to:}
+%  & Q_{sim} = F_{model}(\theta,\lambda)
+% \end{array}
+% \end{equation}
+
+% \section{Sensitivity analysis using radial penalty analysis}
+% TODO: Give mathematical definition of the radial penalty method
+
+% \begin{equation}\label{eq:RadialPenaltyApproach}
+% \begin{array}{rl}
+% {{\text{minimize}}}: & objective function\\
+% \text{subject to:}
+%  & Calibration Error < x
+% \end{array}
+% \end{equation}
+
+
+% \section{Results: calibration and sensitivity analysis}
+% \subsubsection{Simulation Framework}
+% \subsection{Calibration Results}
+% \subsubsection{}
+
+\bibliography{refs}
+
+\end{document}
