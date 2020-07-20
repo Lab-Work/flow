@@ -19,7 +19,7 @@ class HighwayCongested:
  
     def __init__(self,wave_params=[1.3],flow_params=[30.0,1.0,4.0,2.0],
         fidelity=30,
-        sim_length=225,#15 minutes at step size of .4
+        sim_length=2250,#15 minutes at step size of .4
         sim_step=.4,
         speed_limit=10.0,
         additive_noise=0.0):
@@ -183,7 +183,7 @@ class HighwayCongested:
         self.meanCounts = self.getMean(self.countsData)
         self.stdSpeed = self.getDev(self.speedData)
         self.stdCounts = self.getDev(self.countsData)
-        self.generateSpaceTimeDiagram(highway_data)
+      #  self.generateSpaceTimeDiagram(highway_data)
 
     def generateSpaceTimeDiagram(self, data):
         #time module to save name

@@ -115,7 +115,7 @@ def saveErrors(error, params, fname="error.csv", delim=","):
 
 def rmse_of_mean_error_vector(params,obj_func=getSpeedErrorVector,num_repeat=5):
     rmse_vector = []
-    fname = open('data/trial_error_vector_2.csv','ab')
+    fname = open('data/error_vector_2.csv','ab')
     total_sims = num_repeat
     while num_repeat != 0:
         print("Sim number: ", 6-num_repeat)
@@ -130,7 +130,7 @@ def rmse_of_mean_error_vector(params,obj_func=getSpeedErrorVector,num_repeat=5):
     print("Mean error vector: {}".format(mean_error_vector))
     print("RMSE of mean error vector: {}".format(mean_rmse))
     fname.close()
-    saveErrors(mean_rmse, params, fname="trial_rmse_mean_error_vector.csv", delim=",")
+    saveErrors(mean_rmse, params, fname="rmse_mean_error_vector.csv", delim=",")
     return mean_rmse
 
 #bounds

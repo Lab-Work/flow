@@ -1,3 +1,8 @@
+"""
+Usage:
+    before running this code make sure to delete any main_data.csv file in the Optimization directory
+    after running this code execute the "statsPlot.py" program to generate other important plots
+"""
 
 import numpy as np
 # import highway_free_flow as hff
