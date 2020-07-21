@@ -4,6 +4,29 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
 import random
+
+arr = np.array([i for i in range(1,31)])
+siz = 5
+take = 20
+
+def getRandom(init_arr, X, last):
+    max_size = len(init_arr)
+    i = random.randint(max_size-last, max_size)
+    print("random: ", i)
+    print(init_arr[i:])
+    if (len(init_arr[i:]) >= X):
+        print("Final Result:", init_arr[i:i+X])
+        return init_arr[i:i+X]
+    else:
+        getRandom(init_arr, X, last)
+
+
+getRandom(arr, siz, take)
+
+
+
+
+
 """
 speeds = np.array( list(np.array([12,14,15.41])), list(np.array([11,18,21.123])), list(np.array([0,8,18.6])) )
 a_vals = np.array([1,2,3])
@@ -17,12 +40,14 @@ plt.title('Affects of varying a')
 plt.show()
 
 """
+"""
 
 def lambda_objective(params):
     r = random.randint(1, params)
     print("r = ", r)
     return r
 
+"""
 """
 run the sim 5 times and store the results. 
 calculate the difference between the true time-series and each simulated timeseries. 
@@ -32,6 +57,7 @@ before running a calibration routine plot that error function (against say 1.3,2
     objective function is RMSE(SUM(Q_real - Q_measured_i))
     Where each i corresponds to one of the simulation samples
 If it still looks bumpy try increasing the number of runs per objective function to see if it helps
+"""
 """
 
 def average_of_multiple_sims_objective(params, obj_func=lambda_objective,num_repeat=5):
@@ -53,7 +79,7 @@ x = np.array(x)
 print(np.concatenate((x),axis=0))
 
 
-
+"""
 
 
 """

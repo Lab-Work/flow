@@ -18,12 +18,14 @@ import time
 class HighwayCongested:
  
     def __init__(self,wave_params=[1.3],flow_params=[30.0,1.0,4.0,2.0],
-        fidelity=30,
-        sim_length=225,#15 minutes at step size of .4
+        fidelity=30, #seconds
+        sim_time=5.0, #minutes
         sim_step=.4,
         speed_limit=10.0,
         additive_noise=0.0):
-        
+
+        self.sim_time = sim_time
+        self.sim_length= int((self.sim_time*60.0)/sim_step)
         self.timeCreated = time.strftime("%Y%m%d_%H%M%S")
         self.a = wave_params[0]
         self.b = 2.0 
@@ -44,10 +46,10 @@ class HighwayCongested:
         self.additional_net_params['boundary_cell_length'] = 100
         self.csvFileName = ""
         self.sim_step=sim_step
-        self.sim_length=sim_length
         self.position_for_count = 800
         self.speedData = []
         self.countsData = []
+        self.timeData = []
         self.meanSpeed = 0
         self.meanCounts = 0
         self.stdSpeed = 0
@@ -134,6 +136,9 @@ class HighwayCongested:
         print("The counts are: ", countsData)
         return countsData
 
+    def getMeasurementTimes(self):
+        return self.timeData
+
     def getVelocityData(self):
         speedData = self.speedData
         print("The speeds are: ", speedData)
@@ -175,10 +180,10 @@ class HighwayCongested:
               while(p < position_for_count):
                   t += 1
                   p = pos_data[1,t]
-              vTime_array.append((pos_data[0,t],veh_data[1,t])) #(time stamp, velocity a  t time stamp) at which   car passes the radar point
+              vTime_array.append((pos_data[0,t],veh_data[1,t])) #(time stamp, velocity at time stamp) at which car passes the radar point
         vTime_array.sort(key=lambda x: x[0])
-        count_num, average_speed = self.countsEveryXSeconds(self.fidelity, vTime_array)
-        self.countsData, self.speedData = count_num, average_speed
+        count_num, average_speed, times_data = self.countsEveryXSeconds(self.fidelity, vTime_array)
+        self.countsData, self.speedData, self.timeData = count_num, average_speed, times_data
         self.meanSpeed = self.getMean(self.speedData)
         self.meanCounts = self.getMean(self.countsData)
         self.stdSpeed = self.getDev(self.speedData)
@@ -196,7 +201,7 @@ class HighwayCongested:
         marker_size=1.0
         coloring_Attribute = 'SPEED'
         data.plot_Time_Space(coloring_Attribute=coloring_Attribute,edge_list=edge_list,lane_list=lane_list,clim=clim,fileName=fileName,time_range=time_range,pos_range=pos_range,marker_size=marker_size)
-        print("Space-Time diagram created and saved: ", fileName)    
+        print("Space-Time diagram created and saved: ", fileName)
 
     def getMean(self, vals):
         return np.mean(vals)
@@ -204,7 +209,7 @@ class HighwayCongested:
     def getDev(self, vals):
         return np.std(vals)
 
-    def countsEveryXSeconds(self, x, sorted_counts, trim=False):
+    def countsEveryXSeconds(self, x, sorted_counts):
         i = 0
         m = 0
         j = 1
@@ -229,11 +234,22 @@ class HighwayCongested:
         mcc = []
         for k in mc:
             mcc.append(len(k))
-        if (trim==True):
+        time = [30*i for i in range(1,len(mcc)+1)]
+     #   print("last time: ", sorted_counts[-1][0])
+        if (sorted_counts[-1][0] > float(self.sim_time)*60):
             mcc.pop()
-            mcc.pop(0)
-            mcc.pop(0)
-        return mcc, meanSpeed
+            meanSpeed.pop()
+            time.pop()
+     #   print("len(speeds), speeds: {} , {}".format(len(meanSpeed), meanSpeed))
+     #   print("len(counts), counts: {} , {}".format(len(mcc), mcc))
+     #   print("len(time) , time: {} {}".format(len(time), time))
+        return mcc, meanSpeed, time
 
     def deleteDataFile(self,csvFile):
         os.remove(csvFile)
+
+"""
+if __name__ == "__main__":
+    h = HighwayCongested(wave_params=[1.3,2])
+    print(h.timeData)
+"""

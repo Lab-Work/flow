@@ -13,19 +13,29 @@ from pandas import DataFrame
 
 class ParamSweep:
 
-    def __init__(self,b_val=2,real_a=1.3,range_a=[0.3,2.0], num_a_samples=18, num_samples_kept=2):
+    def __init__(self,b_val=2,real_a=1.3,
+                 range_a=[0.3,2.0],
+                 num_a_samples=18,
+                 num_samples_kept=15,
+                 sample_time_mins=10,
+                 consideration_time = 20,
+                 numSamples=5):
         self.b_val = b_val
         self.real_a = real_a
         self.real_params = [self.real_a,self.b_val]
         self.real_results = hc.HighwayCongested(wave_params=self.real_params)
+        self.fidelity = self.real_results.fidelity
         self.original_count = np.array(self.real_results.getCountsData())
         self.original_speed = np.array(self.real_results.getVelocityData())
-        self.a_range = range_a 
-        self.num_a_samples = num_a_samples 
+        self.a_range = range_a
+        self.num_a_samples = num_a_samples
         self.num_per_param_samples = 1
         self.a_vals = np.linspace(self.a_range[0],self.a_range[1],self.num_a_samples)
         self.a_vals = list(self.a_vals)
         self.num_samples_kept = num_samples_kept
+        self.sample_time_mins = sample_time_mins
+        self.consideration_time = consideration_time
+        self.numSamples = numSamples
         self.deleteExistingDataFile()
 
     def deleteExistingDataFile(self):
@@ -54,7 +64,8 @@ class ParamSweep:
         error_counts = ((simmed_counts - self.original_count)**2).sum()
         return error_counts
 
-    #def getRMSEOfMeanErrorVector(): 
+    def getRMSEOfMeanErrorVector(self, sim_results, a):
+        pass
 
     def createStatsFile(self,a,sim_counts,sim_speed):
         mean_counts = np.mean(sim_counts)
@@ -67,7 +78,7 @@ class ParamSweep:
         with open("main_data.csv", 'a', newline='') as file:
             writer = csv.writer(file)
             writer.writerows([data_line])
-    
+
     def plotSpeedGraph(self,speeds):
         sns.set_palette(sns.color_palette("hls", 20))
         for i in range(len(self.a_vals)):
@@ -101,8 +112,47 @@ class ParamSweep:
         np.savetxt('varying_a_speeds.csv',speeds,delimiter=delim)
         np.savetxt('varying_a_aVals.csv',self.a_vals,delimiter=delim)
 
-    def runMultipleSimParameterSweep(self):
-        pass
+    def getRandomSampleofSizeX(self,all_data, X, consideration):
+        max_size = len(all_data)
+        randNum = random.randint(max_size-consideration, max_size)
+        if (len(all_data[randNum:]) >= X):
+            return np.array(all_data[randNum:randNum+X])
+        else:
+            self.getRandomSampleofSizeX(all_data,X,consideration)
+
+    def rmse(self, diff_vector):
+        return np.sqrt(np.mean((diff_vector)**2))
+
+    def runMultipleSimParameterSweep(self, numSamples=self.numSamples):
+        """
+        required plots:
+            1) RMSE(average_vector) vs a_val
+            2) 5 speeds vector for 1 a on all a_vals
+        """
+        fname = open('data/param_sweep_speeds.csv','ab')
+        vector_size = int((self.sample_time_mins * 60)/self.fidelity)
+        consider_size = int((self.consideration_time * 60)/self.fidelity)
+        self.original_speed = self.getRandomSampleofSizeX(self.original_speed, vector_size, consider_size)
+        speeds_vector = []
+        for a in self.a_vals:
+            print('a value: '+str(a))
+            sim_params = [a,self.b_val]
+            sim_results = hc.HighwayCongested(wave_params=sim_params)
+            sim_speeds = np.array(sim_results.getVelocityData())
+            total_sims = numSamples
+            rmse_vector = []
+            while numSamples != 0:
+                speed_s = self.getRandomSampleofSizeX(sim_speeds, vector_size, consider_size)
+                rmse_vector.append(speed_s)
+                np.savetxt(fname,[np.concatenate((sim_params,speed_s))], delimiter=',',fmt='%2.5f')
+                numSamples-=1
+            speeds_vector.append(rmse_vector)
+            rmse_vector = np.array(rmse_vector)
+            mean_error_vector = (1.0 / total_sims) * rmse_vector.sum(axis=0)
+            mean_rmse = self.rmse(mean_error_vector)
+            print("Mean error vector: {}".format(mean_error_vector))
+            print("RMSE of mean error vector: {}".format(mean_rmse))
+            fname.close()
 
     def runSingleSimParameterSweep(self):
         counts = []
