@@ -1,20 +1,19 @@
 """
 Usage:
-    before running this code make sure to delete any main_data.csv file in the Optimization directory
-    after running this code execute the "statsPlot.py" program to generate other important plots
+
 """
 import numpy as np
-# import highway_free_flow as hff
 import highway_congested as hc
-import time, random, csv, os, sys
+import random, csv, os
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import seaborn as sns
-
+import pandas as pd
+from pandas import DataFrame
 
 class ParamSweep:
 
-    def __init__(self,b_val=2,real_a=1.3,range_a=[0.3,2.0], num_a_samples=18, num_samples_kept=15):
+    def __init__(self,b_val=2,real_a=1.3,range_a=[0.3,2.0], num_a_samples=18, num_samples_kept=2):
         self.b_val = b_val
         self.real_a = real_a
         self.real_params = [self.real_a,self.b_val]
@@ -27,6 +26,10 @@ class ParamSweep:
         self.a_vals = np.linspace(self.a_range[0],self.a_range[1],self.num_a_samples)
         self.a_vals = list(self.a_vals)
         self.num_samples_kept = num_samples_kept
+        self.deleteExistingDataFile()
+
+    def deleteExistingDataFile(self):
+        os.remove('main_data.csv')
 
     def adjustSize(self,sim, real):
         real = list(real)
@@ -64,35 +67,8 @@ class ParamSweep:
         with open("main_data.csv", 'a', newline='') as file:
             writer = csv.writer(file)
             writer.writerows([data_line])
-
-    def runParameterSweep(self):
-        counts = []
-        speeds = []
-        #adjusting the size of orginal data
-        self.original_count = self.original_count[-self.num_samples_kept:] 
-        self.original_speed = self.original_speed[-self.num_samples_kept:] 
-
-        for a in self.a_vals:
-            print('a value: '+str(a))
-            sim_params = [a,self.b_val]
-            sim_results = hc.HighwayCongested(wave_params=sim_params)
-            sim_counts = np.array(sim_results.getCountsData())
-            sim_speeds = np.array(sim_results.getVelocityData())
-            self.createStatsFile(a, sim_counts[-self.num_samples_kept:], sim_speeds[-self.num_samples_kept:])
-            sim_results.destroyCSV()
-            counts.append(sim_counts[-self.num_samples_kept:])
-            speeds.append(sim_speeds[-self.num_samples_kept:])
-
-        counts = np.array(counts)
-        speeds = np.array(speeds)
-
-        np.savetxt('varying_a_counts.csv',counts,delimiter=',')
-        np.savetxt('varying_a_speeds.csv',speeds,delimiter=',')
-        np.savetxt('varying_a_aVals.csv',self.a_vals,delimiter=',')
-        print('Sampling finished.')
-        self.a_vals = np.array(self.a_vals)
-        colour = [i / self.a_vals.max() for i in self.a_vals]
-
+    
+    def plotSpeedGraph(self,speeds):
         sns.set_palette(sns.color_palette("hls", 20))
         for i in range(len(self.a_vals)):
             plt.plot([x for x in range(len(speeds[i]))], speeds[i], label="a = {}".format(self.a_vals[i]))
@@ -103,6 +79,7 @@ class ParamSweep:
         plt.savefig("plot_v_a.png")
         plt.show()
 
+    def plotCountsGraph(self, counts):
         for i in range(len(self.a_vals)):
             plt.plot([x for x in range(len(counts[i]))], counts[i], label="a = {}".format(self.a_vals[i]))
         plt.legend()
@@ -112,7 +89,69 @@ class ParamSweep:
         plt.savefig("plot_q_a.png")
         plt.show()
 
+    def getAbsSquaredError(self, sim_results, a):
+        sim_counts = np.array(sim_results.getCountsData())
+        sim_speeds = np.array(sim_results.getVelocityData())
+        self.createStatsFile(a, sim_counts[-self.num_samples_kept:], sim_speeds[-self.num_samples_kept:])
+        sim_results.destroyCSV()
+        return sim_counts[-self.num_samples_kept:], sim_speeds[-self.num_samples_kept:]
+
+    def saveNumpyTxtFiles(self, counts, speeds, delim = ','):
+        np.savetxt('varying_a_counts.csv',counts,delimiter=delim)
+        np.savetxt('varying_a_speeds.csv',speeds,delimiter=delim)
+        np.savetxt('varying_a_aVals.csv',self.a_vals,delimiter=delim)
+
+    def runMultipleSimParameterSweep(self):
+        pass
+
+    def runSingleSimParameterSweep(self):
+        counts = []
+        speeds = []
+        self.original_count = self.original_count[-self.num_samples_kept:] 
+        self.original_speed = self.original_speed[-self.num_samples_kept:] 
+        for a in self.a_vals:
+            print('a value: '+str(a))
+            sim_params = [a,self.b_val]
+            sim_results = hc.HighwayCongested(wave_params=sim_params)
+            counts_sim, speeds_sim = self.getAbsSquaredError(sim_results,a)
+            counts.append(counts_sim)
+            speeds.append(speeds_sim)
+        counts = np.array(counts)
+        speeds = np.array(speeds)
+        self.saveNumpyTxtFiles(counts,speeds)
+        print('Sampling finished.')
+        self.a_vals = np.array(self.a_vals)
+        self.plotSpeedGraph(speeds)
+        self.plotCountsGraph(counts)
+
+    def getStatsPlots(self):
+        df = pd.read_csv('main_data.csv', names = ['a', 'b', 'mean_counts', 'std_counts', 'counts_error', 'mean_speed', 'std_speed', 'speed_error'])
+
+        df.plot(x='a', y='mean_speed')
+        plt.ylabel("Average Speed")
+        plt.show()
+
+        df.plot(x='a', y='mean_counts')
+        plt.ylabel("Average Counts")
+        plt.show()
+
+        df.plot(x='a', y='std_speed')
+        plt.ylabel("Standard Deviation Speed")
+        plt.show()
+
+        df.plot(x='a', y='std_counts')
+        plt.ylabel("Standard Deviation Counts")
+        plt.show()
+
+        df.plot(x='a', y='speed_error')
+        plt.ylabel("Error in Speed")
+        plt.show()
+
+        df.plot(x='a', y='counts_error')
+        plt.ylabel("Error in Counts")
+        plt.show()
 
 if __name__ == "__main__":
     param1 = ParamSweep()
-    param1.runParameterSweep()
+    param1.runSingleSimParameterSweep()
+    param1.getStatsPlots()
