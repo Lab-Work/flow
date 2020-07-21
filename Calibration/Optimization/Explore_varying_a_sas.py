@@ -1,6 +1,6 @@
 """
-Usage:
-
+sas message
+Currently working on multiple sim code
 """
 import numpy as np
 import highway_congested as hc
@@ -17,9 +17,10 @@ class ParamSweep:
                  range_a=[0.3,2.0],
                  num_a_samples=18,
                  num_samples_kept=15,
-                 sample_time_mins=10,
-                 consideration_time = 20,
+                 sample_time_mins=10,  #mins
+                 consideration_time = 20,  #mins
                  numSamples=5):
+
         self.b_val = b_val
         self.real_a = real_a
         self.real_params = [self.real_a,self.b_val]
@@ -122,6 +123,10 @@ class ParamSweep:
 
     def rmse(self, diff_vector):
         return np.sqrt(np.mean((diff_vector)**2))
+
+    def saveErrors(self, error, params, fname="error.csv", delim=","):
+        with open("data/"+fname, 'a') as f:
+            f.write(str(error)+delim+str(params)+"\n")
 
     def runMultipleSimParameterSweep(self, numSamples=self.numSamples):
         """
