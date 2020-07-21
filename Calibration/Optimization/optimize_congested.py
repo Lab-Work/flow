@@ -91,6 +91,21 @@ def getSpeedErrorVector(params):
 def rmse(diff_vector):
     return np.sqrt(np.mean((diff_vector)**2))
 
+def multiple_sim_mean_std(params, obj_func=lambda_objective,num_repeat=5):
+    acc_error = []
+ #   fname = open('data/lamda_error_vector.csv','ab')
+    while num_repeat != 0:
+        print("Sim number: ", 6-num_repeat)
+        err = obj_func(params)
+        acc_error.append(err)
+    #    np.savetxt(fname, [np.concatenate((params,err))], delimiter=',',fmt='%2.5f')
+        num_repeat-=1
+    acc_error = np.array(acc_error)
+    print("Mean error: {}".format(np.mean(acc_error)))
+  #  fname.close()
+    saveErrors(np.mean(acc_error), params, fname="lambda_error.csv", delim=",")
+    return np.mean(acc_error)
+
 def average_of_multiple_sims_objective(params, obj_func=getSpeedErrorVector,num_repeat=5):
     rmse_vector = []
     fname = open('data/error_vector.csv','ab')
@@ -150,7 +165,7 @@ guess = [0.5]
 
 #optimize
 option = {"disp": True, "xatol": 0.01, "fatol": 0.01}  #default values 0.0001
-sol = minimize(rmse_of_mean_error_vector, guess, method="Nelder-Mead", options=option)
+sol = minimize(multiple_sim_mean_std, guess, method="Nelder-Mead", options=option)
 
 #store the optimized params,counts and speeds
 opt_params = sol.x
