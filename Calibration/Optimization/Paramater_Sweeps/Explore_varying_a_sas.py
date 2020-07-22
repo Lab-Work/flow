@@ -15,10 +15,10 @@ class ParamSweep:
 
     def __init__(self,b_val=2,real_a=1.3,
                  range_a=[0.3,2.0],
-                 num_a_samples=18,
+                 num_a_samples=3,
                  num_samples_kept=15,
-                 sample_time_mins=10,  #mins
-                 consideration_time = 20,  #mins
+                 sample_time_mins=3,  #mins
+                 consideration_time = 5,  #mins
                  numSamples=5):
 
         self.b_val = b_val
@@ -37,7 +37,7 @@ class ParamSweep:
         self.sample_time_mins = sample_time_mins
         self.consideration_time = consideration_time
         self.numSamples = numSamples
-        self.deleteExistingDataFile()
+    #    self.deleteExistingDataFile()
 
     def deleteExistingDataFile(self):
         os.remove('main_data.csv')
@@ -115,11 +115,8 @@ class ParamSweep:
 
     def getRandomSampleofSizeX(self,all_data, X, consideration):
         max_size = len(all_data)
-        randNum = random.randint(max_size-consideration, max_size)
-        if (len(all_data[randNum:]) >= X):
-            return np.array(all_data[randNum:randNum+X])
-        else:
-            self.getRandomSampleofSizeX(all_data,X,consideration)
+        randNum = random.randint(max_size-consideration, consideration)
+        return np.array(all_data[randNum:randNum+X])
 
     def rmse(self, diff_vector):
         return np.sqrt(np.mean((diff_vector)**2))
@@ -128,18 +125,20 @@ class ParamSweep:
         with open("data/"+fname, 'a') as f:
             f.write(str(error)+delim+str(params)+"\n")
 
-    def runMultipleSimParameterSweep(self, numSamples=self.numSamples):
+    def runMultipleSimParameterSweep(self):
+        numSamples=self.numSamples
         """
         required plots:
             1) RMSE(average_vector) vs a_val
             2) 5 speeds vector for 1 a on all a_vals
         """
-        fname = open('data/param_sweep_speeds.csv','ab')
         vector_size = int((self.sample_time_mins * 60)/self.fidelity)
         consider_size = int((self.consideration_time * 60)/self.fidelity)
         self.original_speed = self.getRandomSampleofSizeX(self.original_speed, vector_size, consider_size)
+        print("Measured Speeds Data: ", self.original_speed)
         speeds_vector = []
         for a in self.a_vals:
+            fname = open('data/param_sweep_speeds.csv','ab')
             print('a value: '+str(a))
             sim_params = [a,self.b_val]
             sim_results = hc.HighwayCongested(wave_params=sim_params)
@@ -148,8 +147,10 @@ class ParamSweep:
             rmse_vector = []
             while numSamples != 0:
                 speed_s = self.getRandomSampleofSizeX(sim_speeds, vector_size, consider_size)
+                print("\tSim number: ", self.numSamples+1-numSamples)
+                print("\tSpeeds data:", speed_s)
                 rmse_vector.append(speed_s)
-                np.savetxt(fname,[np.concatenate((sim_params,speed_s))], delimiter=',',fmt='%2.5f')
+                np.savetxt(fname,[np.concatenate(([a],speed_s))], delimiter=',',fmt='%2.5f')
                 numSamples-=1
             speeds_vector.append(rmse_vector)
             rmse_vector = np.array(rmse_vector)
@@ -157,6 +158,7 @@ class ParamSweep:
             mean_rmse = self.rmse(mean_error_vector)
             print("Mean error vector: {}".format(mean_error_vector))
             print("RMSE of mean error vector: {}".format(mean_rmse))
+            self.saveErrors(mean_rmse, [a], fname="param_sweep_rmse_error.csv", delim=",")
             fname.close()
 
     def runSingleSimParameterSweep(self):
@@ -208,5 +210,6 @@ class ParamSweep:
 
 if __name__ == "__main__":
     param1 = ParamSweep()
-    param1.runSingleSimParameterSweep()
-    param1.getStatsPlots()
+    param1.runMultipleSimParameterSweep()
+#    param1.runSingleSimParameterSweep()
+#    param1.getStatsPlots()

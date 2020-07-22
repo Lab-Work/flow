@@ -19,7 +19,7 @@ class HighwayCongested:
  
     def __init__(self,wave_params=[1.3],flow_params=[30.0,1.0,4.0,2.0],
         fidelity=30, #seconds
-        sim_time=5.0, #minutes
+        sim_time=10.0, #minutes
         sim_step=.4,
         speed_limit=10.0,
         additive_noise=0.0):
