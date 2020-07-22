@@ -57,3 +57,22 @@ New messages: ['Message 10 from worker 0.', 'Message 10 from worker 2.', 'Messag
 New messages: ['Message 11 from worker 0.', 'Message 11 from worker 2.', 'Message 11 from worker 1.']
 New messages: ['Message 12 from worker 0.', 'Message 12 from worker 1.', 'Message 12 from worker 2.']
 """
+
+@ray.remote
+def run_sim(sim_params,sim_length,num_samples_from_end):
+	sim_results = hc.HighwayCongested(wave_params=sim_params,sim_length=sim_length)
+	sim_speeds = np.array(sim_results.getVelocityData())
+	sim_speeds = sim_speeds[-num_samples_from_end:]
+	total_sim_runs += 1
+	print('Parameter values: a: '+str(sim_params[0])+' b: '+str(sim_params[1]) + ', simulation number: '+str(total_sim_runs))
+	return sim_speeds
+
+for a in a_range:
+	for b in b_range:
+		sim_params = [a,b]
+		speed_vals = check_for_existing_csv(sim_params)
+		for i in range(num_samples):
+			speed_vals.append(run_sim.remote(sim_params,sim_length,num_samples_from_end))
+		speed_vals = np.array(speed_vals)
+		file_name  = 'a-'+str(a)+'b-'+str(b)+'.csv'
+		np.savetxt(folder_path+file_name,speed_vals)
