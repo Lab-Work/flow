@@ -10,8 +10,7 @@ import numpy as np
 import time, random, csv, os, sys
 import matplotlib.pyplot as plt
 
-#realistic_params = [0.73, 1.67, 25, 1.6, 4, 2] # a,b,v0,T,delta, s0
-realistic_params = [1.3] # a,b
+realistic_params = [0.73] # a,b
 num_samples_from_end = 15
 real_sim = hc.HighwayCongested(wave_params=realistic_params)
 measured_counts = np.array(real_sim.getCountsData())
@@ -148,6 +147,33 @@ def rmse_of_mean_error_vector(params,obj_func=getSpeedErrorVector,num_repeat=5):
     saveErrors(mean_rmse, params, fname="rmse_mean_error_vector.csv", delim=",")
     return mean_rmse
 
+
+def joint_rmse_obj(params,obj_func=getSpeedErrorVector,num_repeat=5):
+    rmse_vector1 = []
+    rmse_vector2 = []
+    total_sims = num_repeat
+    while num_repeat != 0:
+        print("Sim number: ", 6-num_repeat)
+        vector1 = np.array(obj_func(params))
+        rmse_vector1.append(rmse(vector1))
+        rmse_vector2.append(vector1)
+        num_repeat-=1
+    rmse_vector1 = np.array(rmse_vector1)
+    rmse_vector2 = np.array(rmse_vector2)
+    mean_error_vector = (1.0 /total_sims) * rmse_vector2.sum(axis=0)
+    e1 = np.mean(rmse_vector1)
+    e2 = rmse(mean_error_vector)
+    error = (e1+e2)/2.0
+    print("RMSE vector: {}".format(rmse_vector1))
+    print("Mean RMSE: {}".format(e1))
+    print("Mean error vector: {}".format(mean_error_vector))
+    print("RMSE of mean error vector: {}".format(e2))
+    print("Final error: {}".format(error))
+    saveErrors(error, params, fname="joint_rmse_error.csv", delim=",")
+    saveErrors(e1, params, fname="mean_rmse.csv", delim=",")
+    saveErrors(e2, params, fname="rmse_mean.csv", delim=",")
+    return error
+
 #bounds
 a_bounds = (0.5,2)
 b_bounds = (0.5,2)
@@ -161,11 +187,11 @@ bnds = (a_bounds)
 def setGuessedParams():
     return [float(sys.argv[1]), float(sys.argv[2])]
 
-guess = [0.5] 
+guess = [0.5]
 
 #optimize
 option = {"disp": True, "xatol": 0.01, "fatol": 0.01}  #default values 0.0001
-sol = minimize(multiple_sim_mean_std, guess, method="Nelder-Mead", options=option)
+sol = minimize(joint_rmse_obj,guess, method="Nelder-Mead", options=option)
 
 #store the optimized params,counts and speeds
 opt_params = sol.x
