@@ -42,13 +42,13 @@ class HighwayCongested:
         self.env_params = EnvParams(additional_params=ADDITIONAL_ENV_PARAMS)
         self.additional_net_params = ADDITIONAL_NET_PARAMS.copy()
         self.additional_net_params['lanes'] =1
-        self.additional_net_params['length'] = 1600
+        self.additional_net_params['length'] = 2100
         self.road_length = self.additional_net_params['length']
         self.additional_net_params['end_speed_limit'] = speed_limit
         self.additional_net_params['boundary_cell_length'] = 100
         self.csvFileName = ""
         self.sim_step=sim_step
-        self.position_for_count = 800
+        self.position_for_count = 500
         self.speedData = []
         self.countsData = []
         self.timeData = []
