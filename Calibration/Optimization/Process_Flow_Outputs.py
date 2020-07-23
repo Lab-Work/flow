@@ -169,25 +169,19 @@ class SimulationData():
             
         return total_position_dict
         
-    def plot_Time_Space(self,coloring_Attribute='speed',edge_list=None,lane_list=None,clim=None,fileName=None,time_range=[0,1000],pos_range=[0000,2000],marker_size=1.0)  :
+    def plot_Time_Space(self,coloring_Attribute='speed',edge_list=None,lane_list=None,clim=None,fileName=None,time_range=[0,1000],pos_range=[0000,2000],marker_size=1.0, multiple=False)  :
         '''
         Plots the space-time diagram for a specified range (both over time and space) and can be colored according to
         to a specified numerical data field. By default it colors according to speed. 
-        
         edge_list and lane_list should both be a list of strings that specify the edges and lanes.
-        
         Additionally, one must specify the edges and lanes over which the space-time is plotted.
         '''
-        
         edge_dict = self.get_Timeseries_Dict(data_id = 'EDGE_ID')
 
         lane_dict = self.get_Timeseries_Dict(data_id = 'LANE_NUMBER')
-        
         total_position_dict = self.get_Timeseries_Dict(data_id = 'TOTAL_POSITION',want_Numpy=True)
-        
         color_dict = self.get_Timeseries_Dict(data_id = coloring_Attribute,want_Numpy = True)
-        
-        
+
         time_space_list = []
         color_list = []
 
@@ -217,28 +211,28 @@ class SimulationData():
                         c = color_data[n]
                         
                         if(t>=time_range[0] and t<=time_range[1] and x>=pos_range[0] and x<=pos_range[1]):
-                        
                             time_space_list.append([t,x])
                             color_list.append(c)
-                        
         data = np.array(time_space_list)
         color_data = np.array(color_list)
-                        
-        fig = pt.figure(figsize=(30, 30))
-        
-        sc = pt.scatter(data[:,0],data[:,1],s=marker_size,c=color_data,marker='.')
-        pt.grid()
-        pt.xlim(time_range)
-        pt.ylim(pos_range)
-        if(clim is not None):
-            pt.clim(clim)
-        pt.colorbar(sc)
-        pt.xlabel('Time [s]')
-        pt.ylabel('Position [m]')
-        pt.show() 
-        if(fileName is not None):
-            fig.savefig(fileName)
+        if(multiple):
+            return (data[:,0],data[:,1],marker_size,color_data,'.')
+        else:
+            fig = pt.figure(figsize=(30, 30))
+            sc = pt.scatter(data[:,0],data[:,1],s=marker_size,c=color_data,marker='.')
+            pt.grid()
+            pt.xlim(time_range)
+            pt.ylim(pos_range)
+            if(clim is not None):
+                pt.clim(clim)
+            pt.colorbar(sc)
+            pt.xlabel('Time [s]')
+            pt.ylabel('Position [m]')
+        #   pt.show() 
+            if(fileName is not None):
+                fig.savefig(fileName)
             
+
             
     def trim_Timesries(self,data_id='SPEED',pos_range=None,time_range=None):
         '''

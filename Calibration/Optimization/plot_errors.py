@@ -9,7 +9,7 @@ class ErrorPlotter:
         self.f1 = csv_file1
         self.f2 = csv_file2
         self.timestr = time.strftime("%Y%m%d_%H%M%S")
-        self.readEvery = 2 
+        self.readEvery = 2
         self.columns = 2
         self.num_sim = 5
         self.numParams = numParams
@@ -26,7 +26,7 @@ class ErrorPlotter:
         errors = errors[::self.readEvery]  #every other term
         params = params[::self.readEvery]
         x = [i+1 for i in range(len(errors))]
-        plt.plot(x, errors, '--o')
+        figplt = plt.plot(x, errors, '--o')
         num = self.readEvery*(len(errors)) -  1
         plt.ylabel("Error")
         plt.xlabel("Iteration")
@@ -34,9 +34,15 @@ class ErrorPlotter:
         for i, txt in enumerate(params):
             plt.annotate(txt, (x[i], errors[i]))
         plt.savefig("figures/error_latest_"+self.timestr+".png")
-        plt.show()
-
+       # plt.show()
+        return figplt
 
 if __name__ == "__main__":
-    error = ErrorPlotter("data/rmse_error.csv", "data/error_vector.csv",1)
-    error.plotErrorForSingleParam()
+    error = ErrorPlotter("data/joint_rmse_error.csv", "data/lamda_error_vector.csv",1)
+    f1 = error.plotErrorForSingleParam()
+    error1 = ErrorPlotter("data/mean_rmse.csv", "data/lamda_error_vector.csv", 1)
+    f2 = error1.plotErrorForSingleParam()
+    error2 = ErrorPlotter("data/rmse_mean.csv", "data/lamda_error_vector.csv", 1)
+    f3 = error2.plotErrorForSingleParam()
+    plt.legend(["obj func","mean RMSE","RMSE mean_vect"])
+    plt.show()
