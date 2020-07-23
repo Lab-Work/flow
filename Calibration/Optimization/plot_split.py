@@ -191,7 +191,7 @@ class RDSData:
         return mcc, meanSpeed, time
 
 
-
+"""
 if __name__ == "__main__":
     fig  = Plotter("data/highway_a73.csv", "data/highway_a13_2.csv", 2250, 1600,0.73,0.73)
     f1 = RDSData("data/highway_a73.csv", 0.73, 2250)
@@ -201,3 +201,4 @@ if __name__ == "__main__":
     #fig.getSpaceTimeDiagram()
     fig.getRadarDataPlot(f1_data[1], f2_data[1], "speeds_sim_04", "Speeds")
     fig.getRadarDataPlot(f1_data[0], f2_data[0], "counts_sim_04", "Counts")
+"""

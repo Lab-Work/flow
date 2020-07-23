@@ -56,6 +56,7 @@ class HighwayCongested:
         self.meanCounts = 0
         self.stdSpeed = 0
         self.stdCounts = 0
+        self.pfo_data = None 
         self.runSim()
 
     def addVehicles(self):
@@ -165,8 +166,12 @@ class HighwayCongested:
         print("Std Dev Counts", self.stdCounts)
         return self.stdCounts
 
+    def getPFOSimulationData(self, csvFile):
+        self.pfo_data = PFO.SimulationData(csv_path = csvFile)
+        return self.pfo_data 
+
     def processMacroData(self,csvFile):
-        highway_data = PFO.SimulationData(csv_path = csvFile)
+        highway_data = self.getPFOSimulationData(csvFile) 
         pos_dict = highway_data.get_Timeseries_Dict(data_id='TOTAL_POSITION',want_Numpy=True)
         vel_dict =highway_data.get_Timeseries_Dict(data_id='SPEED',want_Numpy=True)
         position_for_count = self.position_for_count #radar reading position
@@ -189,7 +194,7 @@ class HighwayCongested:
         self.meanCounts = self.getMean(self.countsData)
         self.stdSpeed = self.getDev(self.speedData)
         self.stdCounts = self.getDev(self.countsData)
-        #self.generateSpaceTimeDiagram(highway_data)
+       # self.generateSpaceTimeDiagram(highway_data)
 
     def generateSpaceTimeDiagram(self, data):
         #time module to save name
