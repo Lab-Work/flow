@@ -9,6 +9,7 @@ from flow.networks.highway import HighwayNetwork, ADDITIONAL_NET_PARAMS
 from flow.networks.SpeedChange import HighwayNetwork_Modified, ADDITIONAL_NET_PARAMS
 from flow.envs import LaneChangeAccelEnv
 from flow.core.experiment import Experiment
+from plot_split import Plotter
 import numpy as np
 import pandas as pd
 import os, sys
@@ -20,7 +21,7 @@ class HighwayCongested:
     def __init__(self,wave_params=[1.3],flow_params=[30.0,1.0,4.0,2.0],
         fidelity=30, #seconds
         sim_time=15.0, #minutes
-        sim_step=.4,
+        sim_step=.05,
         speed_limit=10.0,
         additive_noise=0.0):
 
@@ -42,6 +43,7 @@ class HighwayCongested:
         self.additional_net_params = ADDITIONAL_NET_PARAMS.copy()
         self.additional_net_params['lanes'] =1
         self.additional_net_params['length'] = 1600
+        self.road_length = self.additional_net_params['length']
         self.additional_net_params['end_speed_limit'] = speed_limit
         self.additional_net_params['boundary_cell_length'] = 100
         self.csvFileName = ""
@@ -168,7 +170,6 @@ class HighwayCongested:
         pos_dict = highway_data.get_Timeseries_Dict(data_id='TOTAL_POSITION',want_Numpy=True)
         vel_dict =highway_data.get_Timeseries_Dict(data_id='SPEED',want_Numpy=True)
         position_for_count = self.position_for_count #radar reading position
-        time_count_data = []  #array to store results
         vTime_array = [] # array to store (time, velocity) results
         for veh_id in highway_data.veh_ids:  #looping through all cars
           pos_data = pos_dict[veh_id] #store position information for each car
@@ -188,13 +189,13 @@ class HighwayCongested:
         self.meanCounts = self.getMean(self.countsData)
         self.stdSpeed = self.getDev(self.speedData)
         self.stdCounts = self.getDev(self.countsData)
-      #  self.generateSpaceTimeDiagram(highway_data)
+        #self.generateSpaceTimeDiagram(highway_data)
 
     def generateSpaceTimeDiagram(self, data):
         #time module to save name
         edge_list = ['highway_0']
         lane_list = ['0']
-        time_range = [0,self.sim_length]
+        time_range = [0,self.sim_time*60]
         pos_range = [0,self.additional_net_params['length']]
         clim = [0,30]
         fileName = "figures/space_time_plots/SpaceTimePlot_" + str(self.timeCreated) + ".png"
@@ -248,8 +249,13 @@ class HighwayCongested:
     def deleteDataFile(self,csvFile):
         os.remove(csvFile)
 
-"""
 if __name__ == "__main__":
-    h = HighwayCongested(wave_params=[1.3,2])
-    print(h.timeData)
-"""
+   # h = HighwayCongested(wave_params=[1.3,2])
+    h1 = HighwayCongested(wave_params=[0.73,2])
+    h2 = HighwayCongested(wave_params=[0.73,2])
+    p = Plotter(h1.csvFileName, h2.csvFileName, h1.sim_time*60, h1.road_length, 0.73, 0.73)
+    p.getSpaceTimeDiagram()
+    p.getRadarDataPlot(h1.getVelocityData(), h2.getVelocityData(), "speeds", "Speed (m/s)")
+    p.getRadarDataPlot(h1.getCountsData(), h2.getCountsData(), "counts", "Counts")
+    #h1.destroyCSV()
+    #h2.destroyCSV()

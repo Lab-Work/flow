@@ -10,7 +10,7 @@ import numpy as np
 import time, random, csv, os, sys
 import matplotlib.pyplot as plt
 
-realistic_params = [0.73] # a,b
+realistic_params = [0.8]
 num_samples_from_end = 15
 real_sim = hc.HighwayCongested(wave_params=realistic_params)
 measured_counts = np.array(real_sim.getCountsData())
@@ -169,9 +169,9 @@ def joint_rmse_obj(params,obj_func=getSpeedErrorVector,num_repeat=5):
     print("Mean error vector: {}".format(mean_error_vector))
     print("RMSE of mean error vector: {}".format(e2))
     print("Final error: {}".format(error))
-    saveErrors(error, params, fname="joint_rmse_error.csv", delim=",")
-    saveErrors(e1, params, fname="mean_rmse.csv", delim=",")
-    saveErrors(e2, params, fname="rmse_mean.csv", delim=",")
+    saveErrors(error, params, fname="joint_rmse_error1.csv", delim=",")
+    saveErrors(e1, params, fname="mean_rmse1.csv", delim=",")
+    saveErrors(e2, params, fname="rmse_mean1.csv", delim=",")
     return error
 
 #bounds
@@ -187,7 +187,7 @@ bnds = (a_bounds)
 def setGuessedParams():
     return [float(sys.argv[1]), float(sys.argv[2])]
 
-guess = [0.5]
+guess = [1.3]
 
 #optimize
 option = {"disp": True, "xatol": 0.01, "fatol": 0.01}  #default values 0.0001
