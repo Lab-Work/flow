@@ -23,7 +23,7 @@ for i in range(num_sims):
 	#Simulatees many times using the same parameters to examine stochasticity in the model:
 	print('Simulation Number: '+str(i))
 	real_results = hc.HighwayCongested(wave_params=real_params,sim_length=sim_length)
-	real_results = hc.HighwayCongested(wave_params=real_params)
+
 	real_counts = np.array(real_results.getCountsData())
 	real_speeds = np.array(real_results.getVelocityData())
 

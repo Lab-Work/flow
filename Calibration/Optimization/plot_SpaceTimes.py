@@ -19,4 +19,4 @@ for i in range(num_files):
 	image_name = figures_path + 'TimeSpace_'+str(i)+'.png'
 
 	SimulationData = PFO.SimulationData(csv_path = csv_path)
-	SimulationData.plot_Time_Space(edge_list=edge_list,lane_list=lane_list,fileName=image_name,show_fig=False,time_range=[0,2000],pos_range=[0000,1600])
+	SimulationData.plot_Time_Space(edge_list=edge_list,lane_list=lane_list,fileName=image_name,time_range=[0,2000],pos_range=[0000,1600])

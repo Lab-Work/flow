@@ -168,7 +168,7 @@ class SimulationData():
             
         return total_position_dict
         
-    def plot_Time_Space(self,coloring_Attribute='speed',edge_list=None,lane_list=None,clim=None,fileName=None,show_fig=True,time_range=[0,1000],pos_range=[0000,2000],marker_size=1.0)  :
+    def plot_Time_Space(self,coloring_Attribute='speed',edge_list=None,lane_list=None,clim=None,fileName=None,show_fig=False,time_range=[0,1000],pos_range=[0000,2000],marker_size=1.0)  :
         '''
         Plots the space-time diagram for a specified range (both over time and space) and can be colored according to
         to a specified numerical data field. By default it colors according to speed. 
@@ -235,6 +235,7 @@ class SimulationData():
         pt.xlabel('Time [s]')
         pt.ylabel('Position [m]')
         if(show_fig):
+            print('Showing figure.')
             pt.show() 
         if(fileName is not None):
             fig.savefig(fileName)

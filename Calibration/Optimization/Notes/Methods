@@ -1,0 +1,50 @@
+\section{Methods}\label{Methods}
+
+In this section different aspects of the calibration problem are described. First a general definition of car-following models is given, and the specific model type used in this work is described. The geometry of the 
+
+
+\subsection{Car-Following models}
+Car-following models have been the subject of significant research over the span of traffic engineerings history. In order to describe the trajectories of individual vahicles they model each vehicle as an ordinary-differential equation that either outputs a vehicles velocity (first order models), or its acceleration (second-order models). In this work acceleration based car-following models are considered.
+
+These models are of the form:
+
+[CF Model Generic Definition]
+
+Where $f()$ is the acceleration at time-step...[FILL IN]
+
+In this work the specific car-following model that is used is the commonly utlized Intelligent Driver Model (IDM) proposed in~\cite{Treiber_IDM}. This model is of the form:
+
+[IDM Definition]
+
+The IDM has six parameters, $\boldsymbol{theta} = [a,b,v0,T,delta,s0]$. Of these, $v0,T,delta$ and $s0$ determine the FD of the traffic flow. While $a$ and $b$ do no affect the FD they still have an affect on the traffic flow dynamics: namely they can shift at which equilibria string-instability can occur. In figure~\ref{fig:FD_Comparison} two FDs are displayed which come from models with the same set of v0,T,delta$ and $s0$, but different $a$ and $b$ and the regions in which the models are string-unstable are marked in red, while stable regions are marked in blue. From there it can be seen that the choice of $a=1.3$ and $b=2.0$ leads ot instabilities at higher flow-rates than $a=1.0$ and $b=2.0$. \George{These parameters might change}
+
+[FIGURE: Showing two FDs with stability regions marked for the same choices of v0,T,delta,s0 and different a,b to show how they can shift where waves occur] 
+
+To demonstrate this phenomena of $a$ and $b$ shifting the boundaries over which phantom-waves can occur figure \ref{fig:TimeSpace_Comparison} shows the time-space diagram for the two models at the same Flow/Density equilibria, where the first model is string-unstable and the second is not.
+
+[FIGURE: Showing time-space plots from the two different parameter sets]
+
+In this work the main consideration is the selection of $a$ and $b$, as these are the parameters that cannot be estimated from FD data. As a result the parameter set for the model parameters that can be estimated from FD are fixed at a reccomended set from the literature, corresponding to $[v0,T,delta,s0]=[30,1.0,4.0,1.0]$.
+
+\subsection{Network Geometry}
+For any MiS-TM an integral part of the model is the geometry of the network over which vehicles are simulated. Since the scope of this work is primarily to consider the calibration of car-following parameters a single-lane, single edge roadway is chosen as the geometry of consideration. This choice means that no lane-changing logic, or Origin/Desitination pairs will be needed in order for the simulation, effectovely limiting the number of MiS-TM parameters to just those related to car-following. 
+
+It is worth noting that while this is a narrow scope in terms of the broader area of MiS-TM calibration, this problem is still a necessary problem to solve in more complicated environments, and is sure to be just as difficult, if not more so. As such in order to understand fundamental issues with just this aspect of the calibration problem, the setup is specifically narrowed as much as possible to just relevant challenges.
+
+The relevant features of this network setup for the problem are displayed in figure \ref{fig:Network_Depiction}
+
+\George{[FIGURE: Graphic similar to what I have in the presentation for showing the single lane]}
+
+Discuss the different hyper-prameters related to the network: total length, position of the sensor, inflow rate, 
+
+\George{Question: Do we need to explain how congested traffic is simulated?}
+
+\subsection{Aggregated measurement model}
+The most common method by which traffic states are measured is through the collection of aggregated point measurements, of the type that radar units record. These units report
+
+\George{[FIGURE:two plots showing the aggregated speeds and counts at a 30 second interval from the two model parameters chosen above.]}
+
+\George{[FIGURE:Replicate the previous two but aggregate at longer time step s.t. fidelity is lost?]}
+
+
+\subsection{Optimization}

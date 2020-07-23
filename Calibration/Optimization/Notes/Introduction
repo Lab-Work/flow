@@ -1,0 +1,33 @@
+\section{Introduction}\label{sec:Introduction}
+
+\subsection{Overview}\label{sec:Overview}
+
+Calibration of models from measured data is a core problem in all of transportation and traffic engineering and science. In general this problem is conerned with finding numerical values for otherwise unknown parameters within a model, such that the model then reproduces recorded data well. Many works have explored this problem in traffic modeling both from a macroscopic standpoint and a microscopic standpoint, where in macroscopic modeling aggregate properties of the traffic flow are modeling, and in microscopic, modeling the behavior of individual vehicles is of concern. [CITATIONS HERE]
+
+\subsection{Related Works}\label{sec:Related_Works}
+
+In general micro-scopic traffic models (MiS-TMs) have many degrees of freedom in their modeling choices and parameters and as such the calibration problem can be extremely challenging. \George{[TALK ABOUT DIFFERENT MICRO CALIBRAITON PROBLEMS: Inflows/Origin-Destination/On-ramps][CITATIONS FOR DIFFERENT ATTEMPTS].}  
+
+Over the last decade much academic effort has been spent on measuring and modeling so-called phantom traffic jams [Sugiyama,Bando, Treiber, Wilson-Ward]. Famously \cite{Sugiyama} showed experimentally in the context of ring-road environment that thes traffic jams can form from no outside interference.
+
+Mathematically, these waves are the result of underlying dynamic instability in the traffic flow, commonly referred to as string-instability. This refers to when a small perturbation (possible a vehicle braking too much) to a homogenous traffic stream at equilibria will grow in size as it is transferred from vehicle to vehicle. These instabilities have been shown to increase fuel consumption and emissions, and even decrease throughput on roadways.
+
+Of more recent interst have been proposals for different technologies to mitigate phantom waves, or "smooth out the traffic". In ~\cite{Stern_RingRoad} it was shown that a low penetration rate of Automated Vehicles executing a simple 
+
+\George{Talk about car-following models and what string-stability is in that context[CITE Wilson-Ward,Monteil]. Include note about how a different calibration problem is that of trying to recover CF model params s.t. that individual trajectories are optimally found.}
+
+In addition to the calibration problems perviously discussed for MiS-TMs, the correct selection of car-following model parameters has also been of interest. While many aspects of an MiS-TM are plausbily independent of the selected car-following model and parameters, traffic flow equilibria, commonly described by the Fundamental Diagram (FD), are determined by this selection. In addition to determining the FD, the car-following behavior is also responsible for whether or not phantom waves will be present in a simulation or not.
+
+\George{Talk about how micro-simulation models use car-following?}
+
+\George{Talk about how traffic is typically measured using aggregated measurements, such as count and average speed. Talk about what can be measured in that context, i.e. typcially the fundamental diagram.} The extent to which wave-chartacteristics for car-following models can be extracted from this type of data is as of yet a relatively unexplored area. This work specifically explores that question.
+
+\subsection{Contributions}\label{sec:Contributions}
+
+\George{Talk about contribution of this work.}
+
+The outline of this work is as follows. 
+
+
+
+

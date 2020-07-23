@@ -6,7 +6,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-dataFile = "varying_a_speeds.csv"
+# dataFile = "varying_a_speeds.csv"
+
+dataFile = '/Users/vanderbilt/Desktop/Research_2020/CIRCLES/Model_Dev/flow/Calibration/Optimization/Error_Sweep/b-1.67/a-0.3111111111111111.csv'
+
 fidelity = 30
 
 def getTimeSeries(data):
@@ -15,7 +18,7 @@ def getTimeSeries(data):
     dt = fidelity
     return f,t,dt
 
-def getFFT(data,a_label):
+def getFFT(data):
     f,t,dt = getTimeSeries(data)
     n = len(t) 
     fhat = np.fft.fft(f,n)
@@ -24,21 +27,28 @@ def getFFT(data,a_label):
     L = np.arange(1,np.floor(n/2),dtype="int") #for plotting first half (symmetry)
     sns.set_palette(sns.color_palette("hls", 50))
    # plt.title("Fast Fourier Transform of Speeds Data")
-    plt.plot(freq[L],PSD[L],label="a = {}".format(a_label))
+    # plt.plot(freq[L],PSD[L],label="a = {}".format(a_label))
     plt.plot(freq[L],PSD[L])
     plt.xlim(freq[L[0]],freq[L[-1]])
     plt.xlabel("Frequency")
     plt.ylabel("Power Spectrum")
-    plt.legend()
+    # plt.legend()
 
 if __name__ ==  "__main__":
-    a_range = [0.3,2.0]
-    num_a_samples = 18
-    num_per_param_samples = 1
-    a = np.linspace(a_range[0],a_range[1],num_a_samples,endpoint=True)
+
     df = pd.read_csv(dataFile)
-    count = 0
     for row in df.itertuples(index = True, name ='Pandas'):
-        getFFT(np.array(row),a[count])
-        count+=1
+        getFFT(np.array(row))
+        
     plt.show()
+
+    # a_range = [0.3,2.0]
+    # num_a_samples = 18
+    # num_per_param_samples = 1
+    # a = np.linspace(a_range[0],a_range[1],num_a_samples,endpoint=True)
+    # df = pd.read_csv(dataFile)
+    # count = 0
+    # for row in df.itertuples(index = True, name ='Pandas'):
+    #     getFFT(np.array(row),a[count])
+    #     count+=1
+    # plt.show()
