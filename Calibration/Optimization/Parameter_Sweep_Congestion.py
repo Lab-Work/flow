@@ -52,14 +52,18 @@ def check_for_existing_csv(sim_params):
 
 
 @ray.remote
-def run_sim(sim_params,sim_length,num_samples_from_end):
+def run_sim(sim_params,sim_timeNot ,num_samples_from_end,want_results=True):
 	#Function to return the results of a simulation, should be parallized w/ ray
-	sim_results = hc.HighwayCongested(wave_params=sim_params,sim_length=sim_length)
+	sim_results = hc.HighwayCongested(wave_params=sim_params,sim_time=sim_time)
 	sim_speeds = np.array(sim_results.getVelocityData())
 	sim_speeds = sim_speeds[-num_samples_from_end:]
-<<<<<<< HEAD
-	sim_results.destroyCSV()
-	return sim_speeds
+
+	if(want_results):
+		return sim_speeds,sim_results
+
+	else:
+		sim_results.destroyCSV()
+		return sim_speeds
 
 def mult_sim_run(sim_params,sim_length,num_samples_from_end,samples_to_run):
 	speed_result_ids = []

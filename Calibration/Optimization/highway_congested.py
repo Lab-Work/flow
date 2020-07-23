@@ -18,7 +18,7 @@ import time
 
 class HighwayCongested:
  
-    def __init__(self,wave_params=[1.3],flow_params=[30.0,1.0,4.0,2.0],
+    def __init__(self,wave_params=[1.3,2.0],flow_params=[30.0,1.0,4.0,2.0],
         fidelity=30, #seconds
         sim_time=15.0, #minutes
         sim_step=.05,
@@ -29,7 +29,7 @@ class HighwayCongested:
         self.sim_length= int((self.sim_time*60.0)/sim_step)
         self.timeCreated = time.strftime("%Y%m%d_%H%M%S")
         self.a = wave_params[0]
-        self.b = 2.0
+        self.b = wave_params[1]
         self.v0 = flow_params[0]
         self.T = flow_params[1]
         self.delta = flow_params[2]
