@@ -83,7 +83,7 @@ class Plotter:
         data2 = PFO.SimulationData(csv_path = self.csv2)
         edge_list = ['highway_0']
         lane_list = ['0']
-        time_range = [400,self.sim_length]
+        time_range = [400, self.sim_length]
         pos_range = [0,self.road_length]
         clim = [0,30]
         fileName = "figures/DualSpaceTimePlot.png"
