@@ -20,8 +20,8 @@ class HighwayCongested:
  
     def __init__(self,wave_params=[1.3,2.0],flow_params=[30.0,1.0,4.0,2.0],
         fidelity=30, #seconds
-        sim_time=15.0, #minutes
-        sim_step=.05,
+        sim_time=5.0, #minutes
+        sim_step=.4,
         speed_limit=10.0,
         additive_noise=0.0):
 
@@ -56,8 +56,8 @@ class HighwayCongested:
         self.meanCounts = 0
         self.stdSpeed = 0
         self.stdCounts = 0
-        self.pfo_data = None 
-        self.runSim()
+        self.pfo_data = None
+      #  self.runSim()
 
     def addVehicles(self):
         vehicles = VehicleParams()
@@ -133,6 +133,7 @@ class HighwayCongested:
         pd.read_csv(emission_location + '-emission.csv')
         self.csvFileName = emission_location+"-emission.csv"
         self.processMacroData(self.csvFileName)
+        return self
 
     def getCountsData(self):
         countsData = self.countsData
@@ -256,11 +257,12 @@ class HighwayCongested:
 
 if __name__ == "__main__":
    # h = HighwayCongested(wave_params=[1.3,2])
-    h1 = HighwayCongested(wave_params=[0.73,2])
-    h2 = HighwayCongested(wave_params=[0.73,2])
+    h = HighwayCongested(wave_params=[0.73,2])
+    h1 = h.runSim()
+    h2 = h.runSim()
     p = Plotter(h1.csvFileName, h2.csvFileName, h1.sim_time*60, h1.road_length, 0.73, 0.73)
-    p.getSpaceTimeDiagram()
     p.getRadarDataPlot(h1.getVelocityData(), h2.getVelocityData(), "speeds", "Speed (m/s)")
     p.getRadarDataPlot(h1.getCountsData(), h2.getCountsData(), "counts", "Counts")
+  #  h2 = HighwayCongested(wave_params=[0.73,2])
     #h1.destroyCSV()
     #h2.destroyCSV()
