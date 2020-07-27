@@ -20,10 +20,10 @@ class HighwayCongested:
  
     def __init__(self,wave_params=[1.3,2.0],flow_params=[30.0,1.0,4.0,2.0],
         fidelity=30, #seconds
-        sim_time=5.0, #minutes
+        sim_time=30.0, #minutes
         sim_step=.4,
         speed_limit=10.0,
-        additive_noise=0.0):
+        additive_noise=0.1):
 
         self.sim_time = sim_time
         self.sim_length= int((self.sim_time*60.0)/sim_step)
