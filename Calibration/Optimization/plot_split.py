@@ -105,7 +105,11 @@ class Plotter:
         plt.savefig(fileName)
         plt.show()
 
-    def getRadarDataPlot(self, data1, data2, fname, ylab):
+    def getRadarDataPlot(self, data1, data2, time,fname, ylab, lim=1):
+        #converting time to index
+        lim = time.index(lim)
+        data1 = list(data1)[lim:]
+        data2 = list(data2)[lim:]
         xval = [i for i in range(len(data1))]
         plt.plot(xval, data1, label="a = {}".format(self.aval1))
         plt.plot(xval, data2, label="a = {}".format(self.aval2))

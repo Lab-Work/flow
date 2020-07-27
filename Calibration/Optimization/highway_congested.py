@@ -270,6 +270,6 @@ if __name__ == "__main__":
     p = Plotter(h1.csvFileName, h2.csvFileName, h1.sim_time*60, h1.road_length, 0.75, 2.0)
     p.getSpaceTimeDiagram()
     p.getSpaceTimeDiagram(timeCut=h1.sim_time*30 - 300, hcut=200) #last 40 measurements and 100 m cut around space boundaries
-    p.getRadarDataPlot(h1.getVelocityData(), h2.getVelocityData(), "speeds", "Speed (m/s)")
-    h1.destroyCSV()
-    h2.destroyCSV()
+    p.getRadarDataPlot(h1.getVelocityData(), h2.getVelocityData(), h1.getMeasurementTimes(),"speeds", "Speed (m/s)", lim=h1.sim_time*30 - 300)
+    #h1.destroyCSV()
+    #h2.destroyCSV()
