@@ -1,0 +1,23 @@
+# controllers/base_controller.py 
+    accel += np.random.normal(0, self.accel_noise)
+
+# controllers/routing_controllers.py
+    import random
+            route_id = np.random.choice(
+    This class allows the vehicle to pick a random route at junctions.
+            random_route = random.randint(0, len(veh_next_edge) - 1)
+                    veh_next_edge[random_route][0],
+                    veh_next_edge[random_route][1])
+
+# envs/base.py
+        import random
+            random.shuffle(self.initial_ids)
+            # issue a random seed to induce randomness into the next rollout
+            self.sim_params.seed = random.randint(0, 1e5)
+
+#envs/ring/wave_attenuation.py
+    import random
+        length = random.randint(
+            self.env_params.additional_params['ring_length'][0],
+            self.env_params.additional_params['ring_length'][1])
+

@@ -20,10 +20,10 @@ class HighwayCongested:
  
     def __init__(self,wave_params=[1.3],flow_params=[30.0,1.0,4.0,2.0],
         fidelity=30, #seconds
-        sim_time=30, #minutes
+        sim_time=20.0, #minutes
         sim_step=.4,
         speed_limit=10.0,
-        additive_noise=0.1):
+        additive_noise=0):
 
         self.sim_time = sim_time
         self.sim_length= int((self.sim_time*60.0)/sim_step)
@@ -42,13 +42,13 @@ class HighwayCongested:
         self.env_params = EnvParams(additional_params=ADDITIONAL_ENV_PARAMS)
         self.additional_net_params = ADDITIONAL_NET_PARAMS.copy()
         self.additional_net_params['lanes'] =1
-        self.additional_net_params['length'] = 2100 
+        self.additional_net_params['length'] = 1600
         self.road_length = self.additional_net_params['length']
         self.additional_net_params['end_speed_limit'] = speed_limit
         self.additional_net_params['boundary_cell_length'] = 100
         self.csvFileName = ""
         self.sim_step=sim_step
-        self.position_for_count = 500 
+        self.position_for_count = 800
         self.speedData = []
         self.countsData = []
         self.timeData = []
@@ -132,7 +132,6 @@ class HighwayCongested:
         emission_location = os.path.join(exp.env.sim_params.emission_path, exp.env.network.name)
         pd.read_csv(emission_location + '-emission.csv')
         self.csvFileName = emission_location+"-emission.csv"
-        self.timeCreated = time.strftime("%Y%m%d_%H%M%S")
         self.processMacroData(self.csvFileName)
         return self
 
@@ -196,9 +195,9 @@ class HighwayCongested:
         self.meanCounts = self.getMean(self.countsData)
         self.stdSpeed = self.getDev(self.speedData)
         self.stdCounts = self.getDev(self.countsData)
-      #  self.generateSpaceTimeDiagram(highway_data)
+       # self.generateSpaceTimeDiagram(highway_data)
 
-    def generateSpaceTimeDiagram(self, data, shw=False):
+    def generateSpaceTimeDiagram(self, data):
         #time module to save name
         edge_list = ['highway_0']
         lane_list = ['0']
@@ -210,10 +209,6 @@ class HighwayCongested:
         coloring_Attribute = 'SPEED'
         data.plot_Time_Space(coloring_Attribute=coloring_Attribute,edge_list=edge_list,lane_list=lane_list,clim=clim,fileName=fileName,time_range=time_range,pos_range=pos_range,marker_size=marker_size)
         print("Space-Time diagram created and saved: ", fileName)
-        if shw:
-            plt.show()
-        else:
-            pass
 
     def getMean(self, vals):
         return np.mean(vals)
@@ -260,17 +255,14 @@ class HighwayCongested:
     def deleteDataFile(self,csvFile):
         os.remove(csvFile)
 
-
 if __name__ == "__main__":
-
-    h0 = HighwayCongested(wave_params=[0.75,2.0])
-    h = HighwayCongested(wave_params=[1.5,2.0])
+    h0 = HighwayCongested(wave_params=[0.73,2])
+    h = HighwayCongested(wave_params=[0.73,2])
     h1 = h0.runSim()
     h2 = h.runSim()
-    p = Plotter(h1.csvFileName, h2.csvFileName, h1.sim_time*60, h1.road_length, 0.75, 2.0)
-    p.getSpaceTimeDiagram()
-   # p.getSpaceTimeDiagram(timeCut=h1.sim_time*30 - 300) #last 40 measurements
-    p.getSpaceTimeDiagram(timeCut=h1.sim_time*30, hcut=100) #last 40 measurements
+    p = Plotter(h1.csvFileName, h2.csvFileName, h1.sim_time*60, h1.road_length, 0.73, 0.73)
     p.getRadarDataPlot(h1.getVelocityData(), h2.getVelocityData(), "speeds", "Speed (m/s)")
+    p.getRadarDataPlot(h1.getCountsData(), h2.getCountsData(), "counts", "Counts")
+  #  h2 = HighwayCongested(wave_params=[0.73,2])
     h1.destroyCSV()
     h2.destroyCSV()
