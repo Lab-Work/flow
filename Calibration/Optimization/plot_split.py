@@ -78,13 +78,13 @@ class Plotter:
         return mcc, meanSpeed, time
 
 
-    def getSpaceTimeDiagram(self):
+    def getSpaceTimeDiagram(self, timeCut=0, hcut=0):
         data1 = PFO.SimulationData(csv_path = self.csv1)
         data2 = PFO.SimulationData(csv_path = self.csv2)
         edge_list = ['highway_0']
         lane_list = ['0']
-        time_range = [400, self.sim_length]
-        pos_range = [0,self.road_length]
+        time_range = [timeCut, self.sim_length]
+        pos_range = [0+hcut,self.road_length-hcut]
         clim = [0,30]
         fileName = "figures/DualSpaceTimePlot.png"
         marker_size=1.0
@@ -105,12 +105,17 @@ class Plotter:
         plt.savefig(fileName)
         plt.show()
 
-    def getRadarDataPlot(self, data1, data2, fname, ylab):
+    def getRadarDataPlot(self, data1, data2, time,fname, ylab, lim=1):
+        #converting time to index
+        lim = time.index(lim)
+        data1 = list(data1)[lim:]
+        data2 = list(data2)[lim:]
         xval = [i for i in range(len(data1))]
-        plt.plot(xval, data1)        
-        plt.plot(xval, data2)        
-        plt.xlabel("Measurement Number")        
+        plt.plot(xval, data1, label="a = {}".format(self.aval1))
+        plt.plot(xval, data2, label="a = {}".format(self.aval2))
+        plt.xlabel("Measurement Number")
         plt.ylabel(ylab)
+        plt.legend()
         plt.title("{} Data at a = {}".format(ylab, self.aval1))
         plt.savefig("figures/radar_plot_"+fname+".png")
         plt.show()

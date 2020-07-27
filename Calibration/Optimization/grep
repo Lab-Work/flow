@@ -1,0 +1,268 @@
+"""
+@author: Sadman Ahmed Shanto
+"""
+from flow.controllers import IDMController,LinearOVM,BandoFTL_Controller
+from flow.core.params import SumoParams, EnvParams, NetParams, InitialConfig, SumoLaneChangeParams
+from flow.core.params import VehicleParams, InFlows
+from flow.envs.ring.lane_change_accel import ADDITIONAL_ENV_PARAMS
+from flow.networks.highway import HighwayNetwork, ADDITIONAL_NET_PARAMS
+from flow.networks.SpeedChange import HighwayNetwork_Modified, ADDITIONAL_NET_PARAMS
+from flow.envs import LaneChangeAccelEnv
+from flow.core.experiment import Experiment
+from plot_split import Plotter
+import numpy as np
+import pandas as pd
+import os, sys
+import Process_Flow_Outputs as PFO
+import time
+
+class HighwayCongested:
+ 
+    def __init__(self,wave_params=[1.3],flow_params=[30.0,1.0,4.0,2.0],
+        fidelity=30, #seconds
+        sim_time=20.0, #minutes
+        sim_step=.4,
+        speed_limit=10.0,
+        additive_noise=0):
+
+        self.sim_time = sim_time
+        self.sim_length= int((self.sim_time*60.0)/sim_step)
+        self.timeCreated = time.strftime("%Y%m%d_%H%M%S")
+        self.a = wave_params[0]
+        self.b = 2.0
+        self.v0 = flow_params[0]
+        self.T = flow_params[1]
+        self.delta = flow_params[2]
+        self.s0 = flow_params[3]
+        self.noise = additive_noise #no noise
+        self.fidelity = fidelity
+        self.traffic_speed = 24.1
+        self.traffic_flow = 2215
+        self.accel_data = (IDMController, {'a':self.a,'b':self.b,'noise':self.noise, 'v0':self.v0, 'T':self.T, 'delta':self.delta, 's0':self.s0})
+        self.env_params = EnvParams(additional_params=ADDITIONAL_ENV_PARAMS)
+        self.additional_net_params = ADDITIONAL_NET_PARAMS.copy()
+        self.additional_net_params['lanes'] =1
+        self.additional_net_params['length'] = 1600
+        self.road_length = self.additional_net_params['length']
+        self.additional_net_params['end_speed_limit'] = speed_limit
+        self.additional_net_params['boundary_cell_length'] = 100
+        self.csvFileName = ""
+        self.sim_step=sim_step
+        self.position_for_count = 800
+        self.speedData = []
+        self.countsData = []
+        self.timeData = []
+        self.meanSpeed = 0
+        self.meanCounts = 0
+        self.stdSpeed = 0
+        self.stdCounts = 0
+        self.pfo_data = None
+      #  self.runSim()
+
+    def addVehicles(self):
+        vehicles = VehicleParams()
+        vehicles.add(
+            veh_id="human",
+            acceleration_controller=self.accel_data,
+            lane_change_params=SumoLaneChangeParams(
+                model="SL2015",
+                lc_sublane=2.0,
+            ),
+        )
+        return vehicles
+
+    def addInflows(self):
+        inflow = InFlows()
+        inflow.add(
+            veh_type="human",
+            edge="highway_0",
+            vehs_per_hour=self.traffic_flow,
+            departLane="free",
+            departSpeed=self.traffic_speed)
+        return inflow
+
+    def setFlowParams(self, inflow,  vehicles): 
+        flow_params = dict(
+            # name of the experiment
+            exp_tag='highway',
+            # name of the flow environment the experiment is running on
+            env_name=LaneChangeAccelEnv,
+            # name of the network class the experiment is running on
+            network=HighwayNetwork_Modified,
+            # simulator that is used by the experiment
+            simulator='traci',
+            # sumo-related parameters (see flow.core.params.SumoParams)
+            sim=SumoParams(
+                sim_step=self.sim_step,
+                render=False,
+                lateral_resolution=0.1,
+                emission_path='data/',
+                restart_instance=True,
+                use_ballistic=True
+            ),
+            # environment related parameters (see flow.core.params.EnvParams)
+            env=EnvParams(
+                horizon=self.sim_length,
+                additional_params=ADDITIONAL_ENV_PARAMS.copy(),
+            ),
+            # network-related parameters (see flow.core.params.NetParams and the
+            # network's documentation or ADDITIONAL_NET_PARAMS component)
+            net=NetParams(
+                inflows=inflow,
+                additional_params= self.additional_net_params,
+            ),
+            # vehicles to be placed in the network at the start of a rollout (see
+            # flow.core.params.VehicleParams)
+            veh=vehicles,
+            # parameters specifying the positioning of vehicles upon initialization/
+            # reset (see flow.core.params.InitialConfig)
+            initial=InitialConfig(
+                spacing="uniform",
+                shuffle=True,
+            ),
+        )
+        return flow_params
+
+    def runSim(self):
+        vehicles = self.addVehicles()
+        inflow = self.addInflows()
+        flow_params = self.setFlowParams(inflow,vehicles)
+        exp = Experiment(flow_params)
+        _ = exp.run(1, convert_to_csv=True)
+        emission_location = os.path.join(exp.env.sim_params.emission_path, exp.env.network.name)
+        pd.read_csv(emission_location + '-emission.csv')
+        self.csvFileName = emission_location+"-emission.csv"
+        self.processMacroData(self.csvFileName)
+        return self
+
+    def getCountsData(self):
+        countsData = self.countsData
+        print("The counts are: ", countsData)
+        return countsData
+
+    def getMeasurementTimes(self):
+        return self.timeData
+
+    def getVelocityData(self):
+        speedData = self.speedData
+        print("The speeds are: ", speedData)
+        return speedData
+
+    def destroyCSV(self):
+        self.deleteDataFile(self.csvFileName)
+
+    def getMeanSpeed(self):
+        print("Mean Speed ", self.meanSpeed)
+        return self.meanSpeed
+
+    def getMeanCounts(self):
+        print("Mean Counts ", self.meanCounts)
+        return self.meanCounts
+
+    def getStdSpeed(self):
+        print("Std Dev Speed ", self.stdSpeed)
+        return self.stdSpeed
+
+    def getStdCounts(self):
+        print("Std Dev Counts", self.stdCounts)
+        return self.stdCounts
+
+    def getPFOSimulationData(self, csvFile):
+        self.pfo_data = PFO.SimulationData(csv_path = csvFile)
+        return self.pfo_data 
+
+    def processMacroData(self,csvFile):
+        highway_data = self.getPFOSimulationData(csvFile) 
+        pos_dict = highway_data.get_Timeseries_Dict(data_id='TOTAL_POSITION',want_Numpy=True)
+        vel_dict =highway_data.get_Timeseries_Dict(data_id='SPEED',want_Numpy=True)
+        position_for_count = self.position_for_count #radar reading position
+        vTime_array = [] # array to store (time, velocity) results
+        for veh_id in highway_data.veh_ids:  #looping through all cars
+          pos_data = pos_dict[veh_id] #store position information for each car
+          end_pos = pos_data[1,-1]
+          veh_data = vel_dict[veh_id]
+          if(end_pos > position_for_count): #if car crossed the radar line point
+              t=0
+              p = pos_data[1,t] #position at which car was spawned
+              while(p < position_for_count):
+                  t += 1
+                  p = pos_data[1,t]
+              vTime_array.append((pos_data[0,t],veh_data[1,t])) #(time stamp, velocity at time stamp) at which car passes the radar point
+        vTime_array.sort(key=lambda x: x[0])
+        count_num, average_speed, times_data = self.countsEveryXSeconds(self.fidelity, vTime_array)
+        self.countsData, self.speedData, self.timeData = count_num, average_speed, times_data
+        self.meanSpeed = self.getMean(self.speedData)
+        self.meanCounts = self.getMean(self.countsData)
+        self.stdSpeed = self.getDev(self.speedData)
+        self.stdCounts = self.getDev(self.countsData)
+       # self.generateSpaceTimeDiagram(highway_data)
+
+    def generateSpaceTimeDiagram(self, data):
+        #time module to save name
+        edge_list = ['highway_0']
+        lane_list = ['0']
+        time_range = [0,self.sim_time*60]
+        pos_range = [0,self.additional_net_params['length']]
+        clim = [0,30]
+        fileName = "figures/space_time_plots/SpaceTimePlot_" + str(self.timeCreated) + ".png"
+        marker_size=1.0
+        coloring_Attribute = 'SPEED'
+        data.plot_Time_Space(coloring_Attribute=coloring_Attribute,edge_list=edge_list,lane_list=lane_list,clim=clim,fileName=fileName,time_range=time_range,pos_range=pos_range,marker_size=marker_size)
+        print("Space-Time diagram created and saved: ", fileName)
+
+    def getMean(self, vals):
+        return np.mean(vals)
+
+    def getDev(self, vals):
+        return np.std(vals)
+
+    def countsEveryXSeconds(self, x, sorted_counts):
+        i = 0
+        m = 0
+        j = 1
+        comp = x
+        c = []
+        mc = []
+        meanSpeed = []
+        while (i < len(sorted_counts)):
+            while( (m!=len(sorted_counts)) and ((j-1)*comp <= sorted_counts[m][0] <=   j*comp) ) :
+                c.append(sorted_counts[m])
+                m+=1
+            i = m
+            j+=1
+            d = c.copy()
+            mc.append(d)
+            #print(d)
+            if (len(d) == 0):
+                meanSpeed.append(0)
+            else:
+                meanSpeed.append(round(sum(i for _, i in d)/len(d),3))
+            c.clear()
+        mcc = []
+        for k in mc:
+            mcc.append(len(k))
+        time = [30*i for i in range(1,len(mcc)+1)]
+     #   print("last time: ", sorted_counts[-1][0])
+        if (sorted_counts[-1][0] > float(self.sim_time)*60):
+            mcc.pop()
+            meanSpeed.pop()
+            time.pop()
+     #   print("len(speeds), speeds: {} , {}".format(len(meanSpeed), meanSpeed))
+     #   print("len(counts), counts: {} , {}".format(len(mcc), mcc))
+     #   print("len(time) , time: {} {}".format(len(time), time))
+        return mcc, meanSpeed, time
+
+    def deleteDataFile(self,csvFile):
+        os.remove(csvFile)
+
+if __name__ == "__main__":
+    h0 = HighwayCongested(wave_params=[0.73,2])
+    h = HighwayCongested(wave_params=[0.73,2])
+    h1 = h0.runSim()
+    h2 = h.runSim()
+    p = Plotter(h1.csvFileName, h2.csvFileName, h1.sim_time*60, h1.road_length, 0.73, 0.73)
+    p.getRadarDataPlot(h1.getVelocityData(), h2.getVelocityData(), "speeds", "Speed (m/s)")
+    p.getRadarDataPlot(h1.getCountsData(), h2.getCountsData(), "counts", "Counts")
+  #  h2 = HighwayCongested(wave_params=[0.73,2])
+    h1.destroyCSV()
+    h2.destroyCSV()

@@ -221,3 +221,5 @@ plt.ylabel("Speed Data")
 plt.title("Calibrating Speed Data (params: " + str(opt_params) + " )")
 plt.savefig("figures/velocity_"+timestr+".png")
 plt.show()
+
+
