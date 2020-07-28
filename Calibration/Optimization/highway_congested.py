@@ -57,7 +57,7 @@ class HighwayCongested:
         self.stdSpeed = 0
         self.stdCounts = 0
         self.pfo_data = None
-       self.runSim()
+        self.runSim()
 
     def addVehicles(self):
         vehicles = VehicleParams()

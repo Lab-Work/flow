@@ -67,8 +67,8 @@ def get_All_FFT(x_vals):
 
 #For loading in data:
 
-def get_csv_list():
-	files = os.listdir()
+def get_csv_list(data_directory):
+	files = os.listdir(data_directory)
 	csv_files = []
 	for file in files:
 		if(file[-3:]=='csv'):
