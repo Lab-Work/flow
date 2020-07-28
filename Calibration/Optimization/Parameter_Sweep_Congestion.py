@@ -18,11 +18,11 @@ num_samples_from_end = 25 #Doesn't record first 7.5 minutes
 num_samples = 50
 
 
-upper_bounds = [1.3,1.5]
-lower_bounds = [0.3,1.0]
+upper_bounds = [1.3,2.0]
+lower_bounds = [0.5,1.0]
 
 a_range = np.linspace(lower_bounds[0],upper_bounds[0],9)
-b_range = np.linspace(lower_bounds[1],upper_bounds[1],6)
+b_range = np.linspace(lower_bounds[1],upper_bounds[1],11)
 
 a_range = list(a_range)
 b_range = list(b_range)
