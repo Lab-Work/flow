@@ -20,7 +20,6 @@ def getABLStatsData(true_a, true_b):
     sim_info_dict = dict.fromkeys(csv_files)
     for csv_file in csv_files: 
             sim_info_dict[csv_file] = SimInfo(csv_folder=csv_folder,file_name=csv_file)
-    ###  Look at L = RMSE and phi = I ###
     # Fix one parameter value: a=.5,b=1.1
     a = true_a
     b = true_b
@@ -40,7 +39,7 @@ def getABLStatsData(true_a, true_b):
         a_sim = sim_info.a
         b_sim = sim_info.b
         L = sim_info.getMAE
-        phi = sim_info.getIdentity
+        phi = sim_info.getAmplitude
         L_dist = sim_info.get_L_dist(L,phi) # vector of loss function evals: L(phi(X),phi(y))
         L_expect = sim_info.get_L_Expect(L,phi)
         L_expectations[csv_file] = L_expect
@@ -65,10 +64,10 @@ def getLStatsData(true_a, true_b):
     sim_info_dict = dict.fromkeys(csv_files)
     for csv_file in csv_files: 
             sim_info_dict[csv_file] = SimInfo(csv_folder=csv_folder,file_name=csv_file)
-    ###  Look at L = RMSE and phi = I ###
     # Fix one parameter value: a=.5,b=1.1
     a = true_a
     b = true_b
+    print(a,b)
     csv_file_real = 'a-'+str(a)+'b-'+str(b)+'.csv'
     speed_true = np.loadtxt(test_folder+csv_file_real)
     # plot expected L for all parameter sets and make clear which is the 'true'
@@ -83,7 +82,7 @@ def getLStatsData(true_a, true_b):
         #For each param set assess the expected L:
         sim_info =  sim_info_dict[csv_file]
         L = sim_info.getMAE
-        phi = sim_info.getIdentity
+        phi = sim_info.getAmplitude
         L_dist = sim_info.get_L_dist(L,phi) # vector of loss function evals: L(phi(X),phi(y))
         L_expect = sim_info.get_L_Expect(L,phi)
         L_expectations[csv_file] = L_expect
@@ -136,17 +135,65 @@ def createABLCountourPlot(true_a, true_b):
     pt.close(fig)
  #   pt.show()
 
+def getPercentageLessThanLTrue(true_a, true_b): #horrible name I am sorry
+    L_exp, L_max, L_min, TrueIndex = getLStatsData(true_a, true_b) 
+    totalPoints = len(L_exp)
+    return (TrueIndex*100)/totalPoints
+
 def createAllPossiblePlots():
     """
     call this function to create all possible plots
     """
     true_as = [round(0.5+0.1*i,2) for i in range(9)]
     true_bs = [round(1.0+0.1*i,2) for i in range(6)]
-    print(true_bs)
     for i in range(len(true_as)):
         for j in range(len(true_bs)):
             createABLCountourPlot(true_as[i],true_bs[j])
             createLossValuesPlot(true_as[i],true_bs[j])
+
+def createPercentageAnalysisColorPlot(LfuncName, PhiFuncName):
+    fig = pt.figure(figsize=(8.0, 5.0))
+    true_as = [round(0.5+0.1*i,2) for i in range(9)]
+    true_bs = [round(1.0+0.1*i,2) for i in range(6)]
+    percentages = [] #tuple of (a,b,percentage_val)
+    for i in range(len(true_as)):
+        for j in range(len(true_bs)):
+            percentages.append((true_as[i],true_bs[j],getPercentageLessThanLTrue(true_as[i],true_bs[j])))
+    a_vals= [i[0] for i in percentages]
+    b_vals= [i[1] for i in percentages]
+    L_vals= [i[2] for i in percentages]
+    x_vals = [i for i in range(len(a_vals))]
+    pt.scatter(a_vals, b_vals, c=L_vals)
+#    pt.scatter(a_vals[TrueIndex], b_vals[TrueIndex])
+    pt.colorbar()
+    pt.title("Loss function: {}, Phi operator: {}".format(LfuncName, PhiFuncName))
+    pt.xlabel("a values")
+    pt.ylabel("b values")
+    fig.savefig("figures/{}and{}color.png".format(LfuncName,PhiFuncName), dpi=600)
+  #  for i, txt in enumerate(params):
+  #      pt.annotate(txt, (x_vals[i], L_vals[i]))
+  #  pt.show()
+    pt.close(fig)
+
+def createPercentageAnalysisPlot(LfuncName, PhiFuncName):
+    true_as = [round(0.5+0.1*i,2) for i in range(9)]
+    true_bs = [round(1.0+0.1*i,2) for i in range(6)]
+    percentages = [] #tuple of (a,b,percentage_val)
+    for i in range(len(true_as)):
+        for j in range(len(true_bs)):
+            percentages.append((true_as[i],true_bs[j],getPercentageLessThanLTrue(true_as[i],true_bs[j])))
+    a_vals= [i[0] for i in percentages]
+    b_vals= [i[1] for i in percentages]
+    L_vals= [i[2] for i in percentages]
+    x_vals = [i for i in range(len(a_vals))]
+    params = list(zip(a_vals, b_vals))
+    pt.plot(x_vals, L_vals, '-.')
+    pt.ylabel("Percentage of points that achieve lower expected loss than true point")
+    pt.title("Loss function: {}, Phi operator: {}".format(LfuncName, PhiFuncName))
+    pt.ylim([0,100])
+    for i, txt in enumerate(params):
+        pt.annotate(txt, (x_vals[i], L_vals[i]))
+    pt.show()
 
 def testPlots():
     createABLCountourPlot(1.3, 1.2)
@@ -159,4 +206,5 @@ def testPlots():
     createLossValuesPlot(0.7, 1.0)
 
 if __name__ == "__main__":
-    testPlots()
+   # testPlots()
+   createPercentageAnalysisColorPlot("MAE", "Amplitude")
