@@ -77,6 +77,16 @@ class SimInfo:
         real_speed_data = np.loadtxt('Test_Set/'+file_name)
         return real_speed_data
 
+
+    def setRealSpeedsData(self,real_speed_data_new):
+        '''
+        Want to be able to set a new real speed, that may not correspond to this parameters true
+        speed sample, because we're comparing to a different parameter set.
+        '''
+        self.realSpeedData = real_speed_data_new
+
+
+
     #L functions
 
 
@@ -103,9 +113,8 @@ class SimInfo:
 
     #Phi functions
     def getAmplitude(self, simSpeed):
-            amplitude_x = np.max(self.realSpeedData)-np.min(self.realSpeedData)
-            amplitude_y = np.max(simSpeed)-np.min(simSpeed)
-            return np.abs(amplitude_y-amplitude_x)
+        amplitude_x = np.max(simSpeed)-np.min(simSpeed)
+        return amplitude_x
 
     def getMean(self, simSpeed):
         return np.average(simSpeed)
@@ -113,11 +122,8 @@ class SimInfo:
     def get_Mean_and_std(self,simSpeed):
         return [np.average(simSpeed),np.std(simSpeed)]
 
-
-    # def getIdentity(self, simSpeed):
-    #     #I am not too sure if this is the correct implementaion
-    #     #George: I'm gonna comment this out for a second, I think we might not need
-    #     return self.realSpeedData - simSpeed
+    def getIdentity(self, simSpeed):
+        return simSpeed
 
 
     # For processing the transformations and 
@@ -139,6 +145,7 @@ class SimInfo:
         return loss_values
 
     def get_L_Expect(self,L,phi):
+        '''This is the final output for assessing objective of a candidate L and phi'''
         return np.average(self.get_L_dist(L,phi))         
 
 
@@ -159,7 +166,7 @@ class SimInfo:
 # George: Just commenting this out temporarily to test
 
 if __name__ == "__main__":
-    csv_folder = '/Users/vanderbilt/Desktop/Research_2020/CIRCLES/Model_Dev/flow/Calibration/Optimization/Param_Sweep/'
+    csv_folder = 'Param_Sweep/'
     file_name = 'a-0.5b-1.0.csv'
     sim_info = SimInfo(csv_folder = csv_folder,file_name = file_name)
 #     dir_to_csv_files = "/Users/sshanto/summer_2020/vu/flow/Calibration/Optimization/MegaSimAnalysis/Param_Sweep/"
