@@ -65,11 +65,8 @@ class SimInfo:
         while(file_name[b_pos] != 'b'):
             b_pos += 1
         b_pos += 2
-
         a_val = float(file_name[a_pos:b_pos-2])
-
         b_val = float(file_name[b_pos:-4])
-
         return [a_val,b_val]
 
     def getRealSpeedsData(self):
@@ -90,13 +87,13 @@ class SimInfo:
     #L functions
 
 
-    def RMSE(self,x,y):
+    def getRMSE(self,x,y):
         return np.sqrt(np.average(np.multiply((x-y),(x-y))))
 
-    def MAE(self,x,y):
+    def getMAE(self,x,y):
         return np.average(np.abs(x-y))
 
-    def SSE(self,x,y):
+    def getSSE(self,x,y):
         return np.sum(np.multiply((x-y),(x-y)))
 
     # George: Problem with current implementation is that you need to possible transform the data
@@ -141,7 +138,7 @@ class SimInfo:
         transformed_data,transformed_real_data = self.get_Transformed_Data(phi)
         loss_values = []
         for i in range(self.num_samples):
-            loss_values.append(L(transformed_data[i,:],transformed_real_data))
+            loss_values.append(L(transformed_data[i:],transformed_real_data))
         return loss_values
 
     def get_L_Expect(self,L,phi):
@@ -165,6 +162,7 @@ class SimInfo:
 
 # George: Just commenting this out temporarily to test
 
+"""
 if __name__ == "__main__":
     csv_folder = 'Param_Sweep/'
     file_name = 'a-0.5b-1.0.csv'
@@ -186,3 +184,4 @@ if __name__ == "__main__":
 #         sim.launchTest(sim.getIdentity,sim.getSSE)
 #         # Example3 : phi = Identity, and L = MAE
 #         sim.launchTest(sim.getIdentity,sim.getMAE)
+"""
