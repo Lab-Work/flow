@@ -3,7 +3,7 @@ import maplotlib.pyplot as pt
 import os
 from scipy.optimize import minimize
 
-#Error functions:
+#Loss functions: L(x,y)
 
 def RMSE(x,y):
 	return np.sqrt(np.average(np.multiply((x-y),(x-y))))
@@ -13,6 +13,10 @@ def MAE(x,y):
 
 def SSE(x,y):
 	return np.sum(np.multiply((x-y),(x-y)))
+
+
+# Below are feature extraction methods: phi(x)
+
 
 def LS_fit_sin(t,x):
 	'''
@@ -108,16 +112,16 @@ def per_sim_eval_data_set(x_vals,y,error_metric):
 		evals.append(error_metric(x,y))
 	return evals
 
-def hist_subplot(x_val_list,y,error_metric,xlim=[0,8],ylim=[0,15],title_list=None):
-	'''Not finished'''
-	num_sims = len(x_val_list)
-	error_list = []
-	for x_vals in x_val_list:
-		error = per_sim_eval_data_set(x_vals,y,error_metric)
-		error_list.append(error)
-	pt.figure()
-	for i in range(num_sims):
-		pt.subplot()
+# def hist_subplot(x_val_list,y,error_metric,xlim=[0,8],ylim=[0,15],title_list=None):
+# 	'''Not finished'''
+# 	num_sims = len(x_val_list)
+# 	error_list = []
+# 	for x_vals in x_val_list:
+# 		error = per_sim_eval_data_set(x_vals,y,error_metric)
+# 		error_list.append(error)
+# 	pt.figure()
+# 	for i in range(num_sims):
+# 		pt.subplot()
 
 def assess_data_list(x_val_list,y,error_metric):
 	assess_list = []
