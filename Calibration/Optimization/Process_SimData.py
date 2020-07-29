@@ -38,8 +38,8 @@ def getABLStatsData(true_a, true_b):
         sim_info =  sim_info_dict[csv_file]
         a_sim = sim_info.a
         b_sim = sim_info.b
-        L = sim_info.getMAE
-        phi = sim_info.getAmplitude
+        L = sim_info.getSPD
+        phi = sim_info.getMean
         L_dist = sim_info.get_L_dist(L,phi) # vector of loss function evals: L(phi(X),phi(y))
         L_expect = sim_info.get_L_Expect(L,phi)
         L_expectations[csv_file] = L_expect
@@ -81,8 +81,8 @@ def getLStatsData(true_a, true_b):
     for csv_file in csv_files:
         #For each param set assess the expected L:
         sim_info =  sim_info_dict[csv_file]
-        L = sim_info.getMAE
-        phi = sim_info.getAmplitude
+        L = sim_info.getSPD
+        phi = sim_info.getMean
         L_dist = sim_info.get_L_dist(L,phi) # vector of loss function evals: L(phi(X),phi(y))
         L_expect = sim_info.get_L_Expect(L,phi)
         L_expectations[csv_file] = L_expect
@@ -163,10 +163,11 @@ def createPercentageAnalysisColorPlot(LfuncName, PhiFuncName):
     b_vals= [i[1] for i in percentages]
     L_vals= [i[2] for i in percentages]
     x_vals = [i for i in range(len(a_vals))]
-    pt.scatter(a_vals, b_vals, c=L_vals)
+    pt.scatter(a_vals, b_vals, c=L_vals, clim = [0, 100])
 #    pt.scatter(a_vals[TrueIndex], b_vals[TrueIndex])
     pt.colorbar()
-    pt.title("Loss function: {}, Phi operator: {}".format(LfuncName, PhiFuncName))
+    score = round(sum(L_vals) /  (len(true_as)*len(true_bs)), 4)
+    pt.title("Loss function: {}, Phi operator: {}, <L,Phi> score = {}".format(LfuncName, PhiFuncName, score))
     pt.xlabel("a values")
     pt.ylabel("b values")
     fig.savefig("figures/{}and{}color.png".format(LfuncName,PhiFuncName), dpi=600)
@@ -207,4 +208,4 @@ def testPlots():
 
 if __name__ == "__main__":
    # testPlots()
-   createPercentageAnalysisColorPlot("MAE", "Amplitude")
+   createPercentageAnalysisColorPlot("SPD", "Mean")
