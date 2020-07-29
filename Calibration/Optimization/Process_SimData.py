@@ -39,7 +39,7 @@ def getABLStatsData(true_a, true_b):
         sim_info =  sim_info_dict[csv_file]
         a_sim = sim_info.a
         b_sim = sim_info.b
-        L = sim_info.getRMSE
+        L = sim_info.getMAE
         phi = sim_info.getIdentity
         L_dist = sim_info.get_L_dist(L,phi) # vector of loss function evals: L(phi(X),phi(y))
         L_expect = sim_info.get_L_Expect(L,phi)
@@ -82,7 +82,7 @@ def getLStatsData(true_a, true_b):
     for csv_file in csv_files:
         #For each param set assess the expected L:
         sim_info =  sim_info_dict[csv_file]
-        L = sim_info.getRMSE
+        L = sim_info.getMAE
         phi = sim_info.getIdentity
         L_dist = sim_info.get_L_dist(L,phi) # vector of loss function evals: L(phi(X),phi(y))
         L_expect = sim_info.get_L_Expect(L,phi)
@@ -103,7 +103,9 @@ def getLStatsData(true_a, true_b):
     return L_exp, L_max, L_min, TrueIndex
 
 def createLossValuesPlot(true_a, true_b):
+    fig = pt.figure()
     L_exp, L_max, L_min, TrueIndex = getLStatsData(true_a, true_b) 
+    x_L_expect = [i for i in range(len(L_exp))]
     pt.plot(x_L_expect, L_exp, 'b.')
     pt.plot(x_L_expect, L_max, 'g.')
     pt.plot(x_L_expect, L_min, 'y.')
@@ -116,21 +118,45 @@ def createLossValuesPlot(true_a, true_b):
     pt.xlabel("Simulations")
     pt.ylabel("Loss Function Evaulations")
     pt.legend(["expected", "max", "min"])
-    pt.show()
+    fig.savefig("figures/a-{}b-{}loss.png".format(true_a,true_b), dpi=600)
+    pt.close(fig)
+ #   pt.show()
 
 def createABLCountourPlot(true_a, true_b): 
+    fig = pt.figure()
     a_vals, b_vals, L_vals, TrueIndex = getABLStatsData(true_a, true_b)
     pt.scatter(a_vals, b_vals, c=L_vals)
 #    pt.scatter(a_vals[TrueIndex], b_vals[TrueIndex])
     pt.annotate("True Point", (a_vals[TrueIndex], b_vals[TrueIndex]), rotation=60)
     pt.title("a: {}, b: {}".format(true_a, true_b))
+    pt.colorbar()
     pt.xlabel("a values")
     pt.ylabel("b values")
-    pt.colorbar()
-    pt.show()
+    fig.savefig("figures/a-{}b-{}color.png".format(true_a,true_b), dpi=600)
+    pt.close(fig)
+ #   pt.show()
 
-if __name__ == "__main__":
+def createAllPossiblePlots():
+    """
+    call this function to create all possible plots
+    """
+    true_as = [round(0.5+0.1*i,2) for i in range(9)]
+    true_bs = [round(1.0+0.1*i,2) for i in range(6)]
+    print(true_bs)
+    for i in range(len(true_as)):
+        for j in range(len(true_bs)):
+            createABLCountourPlot(true_as[i],true_bs[j])
+            createLossValuesPlot(true_as[i],true_bs[j])
+
+def testPlots():
     createABLCountourPlot(1.3, 1.2)
     createABLCountourPlot(0.5, 1.2)
     createABLCountourPlot(1.1, 1.5)
     createABLCountourPlot(0.7, 1.0)
+    createLossValuesPlot(1.3, 1.2)
+    createLossValuesPlot(0.5, 1.2)
+    createLossValuesPlot(1.1, 1.5)
+    createLossValuesPlot(0.7, 1.0)
+
+if __name__ == "__main__":
+    testPlots()
