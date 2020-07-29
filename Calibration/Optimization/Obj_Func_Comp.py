@@ -96,18 +96,6 @@ class SimInfo:
     def getSSE(self,x,y):
         return np.sum(np.multiply((x-y),(x-y)))
 
-    # George: Problem with current implementation is that you need to possible transform the data
-    # before pushing through the loss metric. Can't compare
-
-    # def getRMSE(self, simSpeed):
-    #     return np.sqrt(np.average(np.multiply((self.realSpeedData-simSpeed),(self.realSpeedData-simSpeed))))
-
-    # def getMAE(self, simSpeed):
-    #         return np.average(np.abs(self.realSpeedData-simSpeed))
-
-    # def getSSE(self, simSpeed):
-    #         return np.sum(np.multiply((self.realSpeedData-simSpeed),(self.realSpeedData-simSpeed)))
-
     #Phi functions
     def getAmplitude(self, simSpeed):
         amplitude_x = np.max(simSpeed)-np.min(simSpeed)
@@ -116,8 +104,19 @@ class SimInfo:
     def getMean(self, simSpeed):
         return np.average(simSpeed)
 
-    def get_Mean_and_std(self,simSpeed):
-        return [np.average(simSpeed),np.std(simSpeed)]
+    def getStD(self,simSpeed):
+        return np.std(simSpeed)
+
+    def getPeriod(self,simSpeed):
+        simSpeed = np.array(simSpeed)
+        mean = self.getMean(simSpeed)
+        std = self.getStD(simSpeed)
+        normalized_speed = (simSpeed-mean)/std
+        num_measurements = len(simSpeed)
+        abs_diff_sum = 0.0
+        for i in range(1,num_measurements):
+            abs_diff_sum += normalized_speed[i]
+        return abs_diff_sum/num_measurements
 
     def getIdentity(self, simSpeed):
         return simSpeed
@@ -126,7 +125,7 @@ class SimInfo:
     # For processing the transformations and 
 
     def get_Transformed_Data(self,phi):
-        '''Runs all the t'''
+        '''Runs all the data through a transformation'''
         transformed_data = []
         for i in range(self.num_samples):
             simSpeed = self.speedData[i,:]
@@ -138,7 +137,7 @@ class SimInfo:
         transformed_data,transformed_real_data = self.get_Transformed_Data(phi)
         loss_values = []
         for i in range(self.num_samples):
-            loss_values.append(L(transformed_data[i:],transformed_real_data))
+            loss_values.append(L(transformed_data[i],transformed_real_data))
         return loss_values
 
     def get_L_Expect(self,L,phi):
