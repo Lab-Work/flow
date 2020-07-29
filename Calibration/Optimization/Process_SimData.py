@@ -1,10 +1,8 @@
 """
-notes:
-    no non csv files in Param_Sweep
-    error in : loss_values.append(L(transformed_data[i:],transformed_real_data)) no ,
-    get_L_dist not Dist
+@author: Sadman Ahmed Shanto
+usage:
+    
 """
-
 import numpy as np
 import os
 from Obj_Func_Comp import SimInfo
@@ -12,34 +10,55 @@ import matplotlib.pyplot as pt
 from matplotlib  import cm
 
 
-def getABLStatsData(true_a, true_b):
+def getABLStatsData(true_a, true_b, Lstring, phiString):
+    """
+    Lstring = string keyword that determines which Loss function to use. Options are {RMSE,SSE,MAE,SPD,}
+    phiString = string keyword that determines which phi function to use. Options are {Mean, Identity, Amplitude, Std, Period, HybridPhi}
+    returns: a parameters, b parameters, expected Loss eval, index position for true parameters
+    """
     csv_folder = 'Param_Sweep/'
     test_folder = 'Test_Set/'
     csv_files = os.listdir(csv_folder)
-    # put each siminfo into dict to then later reference
     sim_info_dict = dict.fromkeys(csv_files)
     for csv_file in csv_files: 
             sim_info_dict[csv_file] = SimInfo(csv_folder=csv_folder,file_name=csv_file)
-    # Fix one parameter value: a=.5,b=1.1
     a = true_a
     b = true_b
     csv_file_real = 'a-'+str(a)+'b-'+str(b)+'.csv'
     speed_true = np.loadtxt(test_folder+csv_file_real)
-    # plot expected L for all parameter sets and make clear which is the 'true'
     for csv_file in csv_files: 
-            # Set the 'real speed' to be what corresponds to the 'true' parameter values
             sim_info_dict[csv_file].setRealSpeedsData(real_speed_data_new=speed_true)
-    L_expectations = dict.fromkeys(csv_files) # Expected value from distribution of L values on phi(x),phi(y)
+    L_expectations = dict.fromkeys(csv_files)
     L_dist_vals = dict.fromkeys(csv_files)
     L_plot = [] #tuple of (a, b, expected_L,isRealParam)
 
     for csv_file in csv_files:
-        #For each param set assess the expected L:
         sim_info =  sim_info_dict[csv_file]
         a_sim = sim_info.a
         b_sim = sim_info.b
-        L = sim_info.getSPD
-        phi = sim_info.getMean
+
+        if Lstring == "RMSE":
+            L = sim_info.getRMSE 
+        elif Lstring == "MAE":
+            L = sim_info.getMAE
+        elif Lstring == "SSE":
+            L = sim_info.getSSE
+        elif Lstring == "SPD":
+            L = sim_info.getSPD
+
+        if phiString == "Mean":
+            phi = sim_info.getMean
+        elif phiString == "Identity":
+            phi = sim_info.getIdentity
+        elif phiString == "Amplitude":
+            phi = sim_info.getAmplitude
+        elif phiString == "Std":
+            phi = sim_info.getStD
+        elif phiString == "Period":
+            phi = sim_info.getPeriod
+        elif phiString == "HybridPhi":
+            phi = sim_info.getHybridPhi
+
         L_dist = sim_info.get_L_dist(L,phi) # vector of loss function evals: L(phi(X),phi(y))
         L_expect = sim_info.get_L_Expect(L,phi)
         L_expectations[csv_file] = L_expect
@@ -56,7 +75,12 @@ def getABLStatsData(true_a, true_b):
     return a_vals, b_vals, L_vals, TrueIndex
 
 
-def getLStatsData(true_a, true_b):
+def getLStatsData(true_a, true_b, Lstring, phiString):
+    """
+    Lstring = string keyword that determines which Loss function to use. Options are {RMSE,SSE,MAE,SPD,}
+    phiString = string keyword that determines which phi function to use. Options are {Mean, Identity, Amplitude, Std, Period, HybridPhi}
+    returns: expected Loss eval, max Loss eval, min Loss eval, index position for true parameters
+    """
     csv_folder = 'Param_Sweep/'
     test_folder = 'Test_Set/'
     csv_files = os.listdir(csv_folder)
@@ -64,25 +88,41 @@ def getLStatsData(true_a, true_b):
     sim_info_dict = dict.fromkeys(csv_files)
     for csv_file in csv_files: 
             sim_info_dict[csv_file] = SimInfo(csv_folder=csv_folder,file_name=csv_file)
-    # Fix one parameter value: a=.5,b=1.1
     a = true_a
     b = true_b
     print(a,b)
     csv_file_real = 'a-'+str(a)+'b-'+str(b)+'.csv'
     speed_true = np.loadtxt(test_folder+csv_file_real)
-    # plot expected L for all parameter sets and make clear which is the 'true'
     for csv_file in csv_files: 
-            # Set the 'real speed' to be what corresponds to the 'true' parameter values
             sim_info_dict[csv_file].setRealSpeedsData(real_speed_data_new=speed_true)
-    L_expectations = dict.fromkeys(csv_files) # Expected value from distribution of L values on phi(x),phi(y)
+    L_expectations = dict.fromkeys(csv_files)
     L_dist_vals = dict.fromkeys(csv_files)
     L_plot = [] #tuple of (expected, max, min, isRealParam)
 
     for csv_file in csv_files:
-        #For each param set assess the expected L:
         sim_info =  sim_info_dict[csv_file]
-        L = sim_info.getSPD
-        phi = sim_info.getMean
+        if Lstring == "RMSE":
+            L = sim_info.getRMSE 
+        elif Lstring == "MAE":
+            L = sim_info.getMAE
+        elif Lstring == "SSE":
+            L = sim_info.getSSE
+        elif Lstring == "SPD":
+            L = sim_info.getSPD
+
+        if phiString == "Mean":
+            phi = sim_info.getMean
+        elif phiString == "Identity":
+            phi = sim_info.getIdentity
+        elif phiString == "Amplitude":
+            phi = sim_info.getAmplitude
+        elif phiString == "Std":
+            phi = sim_info.getStD
+        elif phiString == "Period":
+            phi = sim_info.getPeriod
+        elif phiString == "HybridPhi":
+            phi = sim_info.getHybridPhi
+
         L_dist = sim_info.get_L_dist(L,phi) # vector of loss function evals: L(phi(X),phi(y))
         L_expect = sim_info.get_L_Expect(L,phi)
         L_expectations[csv_file] = L_expect
@@ -91,7 +131,6 @@ def getLStatsData(true_a, true_b):
             L_plot.append((L_expect,max(L_dist),min(L_dist),True))
         else:
             L_plot.append((L_expect,max(L_dist),min(L_dist),False))
-    # plot results: Sorted by L_expect plot showing range of L (given by L_dist_vals), mark true value in some way
 
     sorted_by_L_exp = sorted(L_plot, key=lambda tup: tup[0])
     x_L_expect = [i for i in range(len(L_plot))]
@@ -101,9 +140,15 @@ def getLStatsData(true_a, true_b):
     TrueIndex = [i[3] for i in sorted_by_L_exp].index(True)
     return L_exp, L_max, L_min, TrueIndex
 
-def createLossValuesPlot(true_a, true_b):
+
+def createLossValuesPlot(true_a, true_b, Lstring, phiString):
+    """
+    Lstring = string keyword that determines which Loss function to use. Options are {RMSE,SSE,MAE,SPD,}
+    phiString = string keyword that determines which phi function to use. Options are {Mean, Identity, Amplitude, Std, Period, HybridPhi}
+    purpose: creates the Loss function statistics plot with true paramet point as red square
+    """
     fig = pt.figure()
-    L_exp, L_max, L_min, TrueIndex = getLStatsData(true_a, true_b) 
+    L_exp, L_max, L_min, TrueIndex = getLStatsData(true_a, true_b, Lstring, phiString) 
     x_L_expect = [i for i in range(len(L_exp))]
     pt.plot(x_L_expect, L_exp, 'b.')
     pt.plot(x_L_expect, L_max, 'g.')
@@ -118,71 +163,90 @@ def createLossValuesPlot(true_a, true_b):
     pt.ylabel("Loss Function Evaulations")
     pt.legend(["expected", "max", "min"])
     fig.savefig("figures/a-{}b-{}loss.png".format(true_a,true_b), dpi=600)
+    pt.show()
     pt.close(fig)
- #   pt.show()
 
-def createABLCountourPlot(true_a, true_b): 
+
+def createABLCountourPlot(true_a, true_b, Lstring, phiString): 
+    """
+    Lstring = string keyword that determines which Loss function to use. Options are {RMSE,SSE,MAE,SPD,}
+    phiString = string keyword that determines which phi function to use. Options are {Mean, Identity, Amplitude, Std, Period, HybridPhi}
+    purpose: creates the colored contour plot of tuple (a,b,L expected)
+    """
     fig = pt.figure()
-    a_vals, b_vals, L_vals, TrueIndex = getABLStatsData(true_a, true_b)
+    a_vals, b_vals, L_vals, TrueIndex = getABLStatsData(true_a, true_b, Lstring, phiString)
     pt.scatter(a_vals, b_vals, c=L_vals)
-#    pt.scatter(a_vals[TrueIndex], b_vals[TrueIndex])
     pt.annotate("True Point", (a_vals[TrueIndex], b_vals[TrueIndex]), rotation=60)
     pt.title("a: {}, b: {}".format(true_a, true_b))
     pt.colorbar()
     pt.xlabel("a values")
     pt.ylabel("b values")
     fig.savefig("figures/a-{}b-{}color.png".format(true_a,true_b), dpi=600)
+    pt.show()
     pt.close(fig)
- #   pt.show()
 
-def getPercentageLessThanLTrue(true_a, true_b): #horrible name I am sorry
-    L_exp, L_max, L_min, TrueIndex = getLStatsData(true_a, true_b) 
+
+def getPercentageLessThanLTrue(true_a, true_b, Lstring, phiString): #horrible name I am sorry
+    L_exp, L_max, L_min, TrueIndex = getLStatsData(true_a, true_b, Lstring, phiString) 
     totalPoints = len(L_exp)
     return (TrueIndex*100)/totalPoints
 
-def createAllPossiblePlots():
+
+def createAllPossiblePlots(Lstring, phiString):
     """
-    call this function to create all possible plots
+    call this function to create L statistics and contour colored plots for all true parameter points 
     """
     true_as = [round(0.5+0.1*i,2) for i in range(9)]
     true_bs = [round(1.0+0.1*i,2) for i in range(6)]
     for i in range(len(true_as)):
         for j in range(len(true_bs)):
-            createABLCountourPlot(true_as[i],true_bs[j])
-            createLossValuesPlot(true_as[i],true_bs[j])
+            createABLCountourPlot(true_as[i],true_bs[j], Lstring, phiString)
+            createLossValuesPlot(true_as[i],true_bs[j], Lstring, phiString)
+
 
 def createPercentageAnalysisColorPlot(LfuncName, PhiFuncName):
+    """
+    Lstring = string keyword that determines which Loss function to use. Options are {RMSE,SSE,MAE,SPD,}
+    phiString = string keyword that determines which phi function to use. Options are {Mean, Identity, Amplitude, Std, Period, HybridPhi}
+    purpose: creates the contour plot of tuple (a,b,percentage of L exp less than true param)
+    """
     fig = pt.figure(figsize=(8.0, 5.0))
     true_as = [round(0.5+0.1*i,2) for i in range(9)]
     true_bs = [round(1.0+0.1*i,2) for i in range(6)]
     percentages = [] #tuple of (a,b,percentage_val)
     for i in range(len(true_as)):
         for j in range(len(true_bs)):
-            percentages.append((true_as[i],true_bs[j],getPercentageLessThanLTrue(true_as[i],true_bs[j])))
+            percentages.append((true_as[i],true_bs[j],getPercentageLessThanLTrue(true_as[i],true_bs[j], LfuncName, PhiFuncName)))
     a_vals= [i[0] for i in percentages]
     b_vals= [i[1] for i in percentages]
     L_vals= [i[2] for i in percentages]
     x_vals = [i for i in range(len(a_vals))]
-    pt.scatter(a_vals, b_vals, c=L_vals, clim = [0, 100])
+    pt.scatter(a_vals, b_vals, c=L_vals)
 #    pt.scatter(a_vals[TrueIndex], b_vals[TrueIndex])
+    pt.clim([0,100])
     pt.colorbar()
     score = round(sum(L_vals) /  (len(true_as)*len(true_bs)), 4)
     pt.title("Loss function: {}, Phi operator: {}, <L,Phi> score = {}".format(LfuncName, PhiFuncName, score))
     pt.xlabel("a values")
     pt.ylabel("b values")
     fig.savefig("figures/{}and{}color.png".format(LfuncName,PhiFuncName), dpi=600)
-  #  for i, txt in enumerate(params):
-  #      pt.annotate(txt, (x_vals[i], L_vals[i]))
-  #  pt.show()
+   # pt.show()
     pt.close(fig)
 
+
 def createPercentageAnalysisPlot(LfuncName, PhiFuncName):
+    """
+    Lstring = string keyword that determines which Loss function to use. Options are {RMSE,SSE,MAE,SPD,}
+    phiString = string keyword that determines which phi function to use. Options are {Mean, Identity, Amplitude, Std, Period, HybridPhi}
+    purpose: creates the line plot of tuple (a,b,percentage of L exp less than true param)
+    """
+    fig = pt.figure(figsize=(8.0, 5.0))
     true_as = [round(0.5+0.1*i,2) for i in range(9)]
     true_bs = [round(1.0+0.1*i,2) for i in range(6)]
     percentages = [] #tuple of (a,b,percentage_val)
     for i in range(len(true_as)):
         for j in range(len(true_bs)):
-            percentages.append((true_as[i],true_bs[j],getPercentageLessThanLTrue(true_as[i],true_bs[j])))
+            percentages.append((true_as[i],true_bs[j],getPercentageLessThanLTrue(true_as[i],true_bs[j], LfuncName, PhiFuncName)))
     a_vals= [i[0] for i in percentages]
     b_vals= [i[1] for i in percentages]
     L_vals= [i[2] for i in percentages]
@@ -194,18 +258,29 @@ def createPercentageAnalysisPlot(LfuncName, PhiFuncName):
     pt.ylim([0,100])
     for i, txt in enumerate(params):
         pt.annotate(txt, (x_vals[i], L_vals[i]))
+    fig.savefig("figures/{}and{}line.png".format(LfuncName,PhiFuncName), dpi=600)
     pt.show()
 
-def testPlots():
-    createABLCountourPlot(1.3, 1.2)
-    createABLCountourPlot(0.5, 1.2)
-    createABLCountourPlot(1.1, 1.5)
-    createABLCountourPlot(0.7, 1.0)
-    createLossValuesPlot(1.3, 1.2)
-    createLossValuesPlot(0.5, 1.2)
-    createLossValuesPlot(1.1, 1.5)
-    createLossValuesPlot(0.7, 1.0)
+
+def testPlots(Lstring, phiString):
+    """
+    just to quick test some L and phi functions
+    """
+    createABLCountourPlot(1.3, 1.2, Lstring, phiString)
+    createABLCountourPlot(0.5, 1.2, Lstring, phiString)
+    createABLCountourPlot(1.1, 1.5, Lstring, phiString)
+    createABLCountourPlot(0.7, 1.0, Lstring, phiString)
+    createLossValuesPlot(1.3, 1.2, Lstring, phiString)
+    createLossValuesPlot(0.5, 1.2, Lstring, phiString)
+    createLossValuesPlot(1.1, 1.5, Lstring, phiString)
+    createLossValuesPlot(0.7, 1.0, Lstring, phiString)
+
 
 if __name__ == "__main__":
-   # testPlots()
-   createPercentageAnalysisColorPlot("SPD", "Mean")
+   createPercentageAnalysisColorPlot("MAE", "Mean")
+   createPercentageAnalysisColorPlot("MAE", "Std")
+   createPercentageAnalysisColorPlot("MAE", "Amplitude")
+   createPercentageAnalysisColorPlot("MAE", "HybridPhi")
+   createPercentageAnalysisColorPlot("MAE", "Identity")
+   createPercentageAnalysisColorPlot("MAE", "Period")
+
