@@ -85,7 +85,8 @@ class SimInfo:
 
 
     #L functions
-
+    def getSPD(self,x,y):
+        return np.sum(np.divide(np.abs(x-y),y))
 
     def getRMSE(self,x,y):
         return np.sqrt(np.average(np.multiply((x-y),(x-y))))
@@ -121,7 +122,8 @@ class SimInfo:
     def getIdentity(self, simSpeed):
         return simSpeed
 
-
+    def getHybridPhi(self,simSpeed):
+        return np.array([self.getMean(simSpeed), self.getAmplitude(simSpeed), self.getPeriod(simSpeed)])
     # For processing the transformations and 
 
     def get_Transformed_Data(self,phi):
