@@ -124,6 +124,8 @@ def createABLCountourPlot(true_a, true_b):
 #    pt.scatter(a_vals[TrueIndex], b_vals[TrueIndex])
     pt.annotate("True Point", (a_vals[TrueIndex], b_vals[TrueIndex]), rotation=60)
     pt.title("a: {}, b: {}".format(true_a, true_b))
+    pt.xlabel("a values")
+    pt.ylabel("b values")
     pt.colorbar()
     pt.show()
 
