@@ -1,6 +1,6 @@
 """
 @author: Sadman Ahmed Shanto
-used for creating figures 5,6, and 7
+used for creating figures 5,6,7 and 8
 """
 import numpy as np
 import os
@@ -275,6 +275,12 @@ def testPlots(Lstring, phiString):
     createLossValuesPlot(0.7, 1.0, Lstring, phiString)
 
 def createComparisonTimeSeriesPlot(a_vals, b_vals):
+    """
+    inputs: 
+        a_vals = [a_1, a_2] # two a values
+        b_vals = [b_1, b_2] # two corresponding b values
+    output: figure 5 (comparison between time series data)
+    """
     csv_folder = 'Param_Sweep/'
     csv_files = ["a-"+str(a_vals[0])+"b-"+str(b_vals[0])+".csv","a-"+str(a_vals[1])+"b-"+str(b_vals[1])+".csv"]
     sim_info_dict = dict.fromkeys(csv_files)
