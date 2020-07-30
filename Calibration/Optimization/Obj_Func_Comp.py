@@ -82,9 +82,24 @@ class SimInfo:
         '''
         self.realSpeedData = real_speed_data_new
 
-
-
     #L functions
+    def getME(self,x,y):  # mean error
+        return np.average(x-y)
+
+    def getMNE(self,x,y):  # normalized mean error
+        return np.average(np.divide(x-y,y))
+
+    def getMANE(self,x,y): # mean absolute normalized error
+        return np.average(np.divide(np.abs(x-y),y))
+
+    def getRMSNE(self,x,y): #root mean squared normalized error
+        return np.sqrt(np.average(np.divide(np.multiply((x-y),(x-y)),np.multiply(y,y))))
+
+    def getU(self,x,y):
+        num = np.sqrt(np.average(np.multiply((y-x),(y-x))))
+        denom = np.sqrt(np.average(np.multiply(y,y))) + np.sqrt(np.average(np.multiply(x,x)))
+        return num/denom
+
     def getSPD(self,x,y):
         return np.sum(np.divide(np.abs(x-y),y))
 
