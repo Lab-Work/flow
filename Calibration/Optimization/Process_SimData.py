@@ -37,13 +37,23 @@ def getABLStatsData(true_a, true_b, Lstring, phiString):
         b_sim = sim_info.b
 
         if Lstring == "RMSE":
-            L = sim_info.getRMSE 
+            L = sim_info.getRMSE
         elif Lstring == "MAE":
             L = sim_info.getMAE
         elif Lstring == "SSE":
             L = sim_info.getSSE
         elif Lstring == "SPD":
             L = sim_info.getSPD
+        elif Lstring == "ME":
+            L = sim_info.getME
+        elif Lstring == "MNE":
+            L = sim_info.getMNE
+        elif Lstring == "MANE":
+            L = sim_info.getMANE
+        elif Lstring == "RMSNE":
+            L = sim_info.getRMSNE
+        elif Lstring == "U":
+            L = sim_info.getU
 
         if phiString == "Mean":
             phi = sim_info.getMean
@@ -89,7 +99,6 @@ def getLStatsData(true_a, true_b, Lstring, phiString):
             sim_info_dict[csv_file] = SimInfo(csv_folder=csv_folder,file_name=csv_file)
     a = true_a
     b = true_b
-    print(a,b)
     csv_file_real = 'a-'+str(a)+'b-'+str(b)+'.csv'
     speed_true = np.loadtxt(test_folder+csv_file_real)
     for csv_file in csv_files: 
@@ -100,6 +109,7 @@ def getLStatsData(true_a, true_b, Lstring, phiString):
 
     for csv_file in csv_files:
         sim_info =  sim_info_dict[csv_file]
+
         if Lstring == "RMSE":
             L = sim_info.getRMSE 
         elif Lstring == "MAE":
@@ -108,6 +118,16 @@ def getLStatsData(true_a, true_b, Lstring, phiString):
             L = sim_info.getSSE
         elif Lstring == "SPD":
             L = sim_info.getSPD
+        elif Lstring == "ME":
+            L = sim_info.getME
+        elif Lstring == "MNE":
+            L = sim_info.getMNE
+        elif Lstring == "MANE":
+            L = sim_info.getMANE
+        elif Lstring == "RMSNE":
+            L = sim_info.getRMSNE
+        elif Lstring == "U":
+            L = sim_info.getU
 
         if phiString == "Mean":
             phi = sim_info.getMean
@@ -232,6 +252,53 @@ def createPercentageAnalysisColorPlot(LfuncName, PhiFuncName):
    # pt.show()
     pt.close(fig)
 
+def getDivergenceOfA(a_real, b_real, Lstring, phiString):
+    a_vals, b_vals, L_vals, TrueIndex = getABLStatsData(a_real, b_real, Lstring, phiString)
+    L_plot = list(zip(a_vals,L_vals))
+    sorted_by_L_exp = sorted(L_plot, key=lambda tup: tup[1])
+    a_vals = [i[0] for i in sorted_by_L_exp]
+    return abs(a_vals[0] - a_real)
+
+def getDivergenceOfB(a_real, b_real, Lstring, phiString):
+    a_vals, b_vals, L_vals, TrueIndex = getABLStatsData(a_real, b_real, Lstring, phiString)
+    L_plot = list(zip(b_vals,L_vals))
+    sorted_by_L_exp = sorted(L_plot, key=lambda tup: tup[1])
+    b_vals = [i[0] for i in sorted_by_L_exp]
+    return abs(b_vals[0] - b_real)
+
+def getAverageDivergenceMetrics(LfuncName, PhiFuncName):
+    """
+    LfuncName = string keyword that determines which Loss function to use. Options are {RMSE,SSE,MAE,SPD,}
+    PhiFuncName = string keyword that determines which phi function to use. Options are {Mean, Identity, Amplitude, Std, Period, HybridPhi}
+    purpose: creates the contour plot of tuple (a,b,percentage of L exp less than true param)
+    GG:
+        Average Percent Divergence: Across all params the average % of other params with a lower obj. func evaluation
+        Average Divergence of a: For all params find the a value that is at the lowest obj func then calculate the abs difference between that and the true a, then a calculate the average of all
+        average Divergence of b: same thing but for b
+    """
+    true_as = [round(0.5+0.1*i,2) for i in range(9)]
+    true_bs = [round(1.0+0.1*i,2) for i in range(6)]
+    percentages = [] 
+    divergences_a = [] 
+    divergences_b = [] 
+    for i in range(len(true_as)):
+        for j in range(len(true_bs)):
+            percentages.append((true_as[i],true_bs[j],getPercentageLessThanLTrue(true_as[i],true_bs[j], LfuncName, PhiFuncName)))
+            divergences_a.append(getDivergenceOfA(true_as[i],true_bs[j], LfuncName, PhiFuncName))
+            divergences_b.append(getDivergenceOfB(true_as[i],true_bs[j], LfuncName, PhiFuncName))
+    percentages = [i[2] for i in percentages]
+    average_percentage_divergence = sum(percentages) / len(percentages)
+    average_divergence_a = 100* (sum(divergences_a) / len(divergences_a))
+    average_divergence_b = 100* (sum(divergences_b) / len(divergences_b))
+    print("L = {}, Phi = {}".format(LfuncName, PhiFuncName))
+    print("apd: ", average_percentage_divergence)
+    print("ada: ", average_divergence_a)
+    print("adb: ", average_divergence_b)
+    line = "{},{},apd: {}, apa: {}, apd: {}".format(LfuncName,PhiFuncName,average_percentage_divergence,average_divergence_a,average_divergence_b)
+    outF = open("metrics.txt", "a")
+    outF.write(line)
+    outF.write("\n")
+    outF.close()
 
 def createPercentageAnalysisPlot(LfuncName, PhiFuncName):
     """
@@ -290,16 +357,16 @@ def createComparisonTimeSeriesPlot(a_vals, b_vals):
             time_series_data.append(sim_info_dict[csv_file].speedData)
     xvals = [30*i for i in range(len(time_series_data[0][0]))]
    # print(len(time_series_data[0][9]))
-    
+
     pt.subplot(1,2,1)
-    for i in range(len(time_series_data[0])):   
+    for i in range(len(time_series_data[0])):
         pt.plot(xvals,time_series_data[0][i],'r')
     pt.title("a = {}, b = {}".format(a_vals[0],b_vals[0]))
     pt.xlabel("Time [s]")
     pt.ylabel("Speeds [m/s]")
     pt.ylim([0,20])
     pt.subplot(1,2,2)
-    for i in range(len(time_series_data[1])):   
+    for i in range(len(time_series_data[1])):
         pt.plot(xvals,time_series_data[1][i],'b')
     pt.title("a = {}, b = {}".format(a_vals[1],b_vals[1]))
     pt.xlabel("Time [s]")
@@ -308,13 +375,17 @@ def createComparisonTimeSeriesPlot(a_vals, b_vals):
    # pt.savefig("_.png")
     pt.show()
 
+
+def getAllPlotsAndMetrics(L_funcs, Phi_funcs):
+    for l in L_funcs:
+        for phi in Phi_funcs:
+            getAverageDivergenceMetrics(l, phi)
+            createPercentageAnalysisColorPlot(l, phi)
+
 if __name__ == "__main__":
-    """
-    createPercentageAnalysisColorPlot("MAE", "Std")
-    createPercentageAnalysisColorPlot("MAE", "Amplitude")
-    createPercentageAnalysisColorPlot("MAE", "HybridPhi")
-    createPercentageAnalysisColorPlot("MAE", "Identity")
-    createPercentageAnalysisColorPlot("MAE", "Period")
-    """
-    createComparisonTimeSeriesPlot([0.5,1.2], [1.3,1.3])
-    createComparisonTimeSeriesPlot([0.7,1.2], [1.3,1.3])
+   # getAverageDivergenceMetrics("SSE", "Identity")
+   # createComparisonTimeSeriesPlot([0.5,1.2], [1.3,1.3])
+   # createComparisonTimeSeriesPlot([0.7,1.2], [1.3,1.3])
+   L_funcs = ["U"]
+   Phi_funcs = ["Identity","Mean","Std","Amplitude","Period","HybridPhi"]
+   getAllPlotsAndMetrics(L_funcs, Phi_funcs)
