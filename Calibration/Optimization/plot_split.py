@@ -1,3 +1,7 @@
+"""
+@author: Sadman Ahmed Shanto
+"""
+
 import matplotlib.pyplot as plt
 import csv
 import pandas as pd
@@ -7,20 +11,24 @@ import time
 
 class Plotter:
 
-    def __init__(self, csv1, csv2, sim_length, road_length, aval1, aval2):
-        self.csv1 = csv1
-        self.csv2 = csv2
+    def __init__(self, csv1, csv2, sim_length, road_length, a_val1, a_val2):
+        self.csv1 = csv1  # emission file 1
+        self.csv2 = csv2  # emission file 2
         self.sim_length = sim_length
         self.road_length = road_length
-        self.aval1 = aval1
-        self.aval2 = aval2
+        self.a_val1 = a_val1  # a value for emission 1
+        self.a_val2 = a_val2 # a value for emission 2
         self.fidelity = 30
-        self.position_for_count = 800
-        self.countsData = []
-        self.speedData = []
-        self.timeData = []
+        self.position_for_count = 800  # position of radar
+        self.countsData = [] # list to store RDS counts info
+        self.speedData = []  # list to store RDS speeds info
+        self.timeData = []  # list that stores time tags
 
     def processMacroData(self,csvFile):
+        """
+        input: emission csv file
+        output: 3 lists containing RDS data - counts, speeds, times
+        """
         highway_data = PFO.SimulationData(csv_path = csvFile)
         pos_dict = highway_data.get_Timeseries_Dict(data_id='TOTAL_POSITION',want_Numpy=True)
         vel_dict =highway_data.get_Timeseries_Dict(data_id='SPEED',want_Numpy=True)
@@ -42,6 +50,10 @@ class Plotter:
         self.countsData, self.speedData, self.timeData = count_num, average_speed, times_data
 
     def countsEveryXSeconds(self, x, sorted_counts):
+        """
+        input: x (int) is the fidelity, sorted_counts (array) is an array of sorted (in time) tuples (position,time)
+        output: 3 arrays of RDS style data of counts, speed and time of measurement
+        """
         i = 0
         m = 0
         j = 1
@@ -67,18 +79,21 @@ class Plotter:
         for k in mc:
             mcc.append(len(k))
         time = [30*i for i in range(1,len(mcc)+1)]
-     #   print("last time: ", sorted_counts[-1][0])
         if (sorted_counts[-1][0] > float(self.sim_time)*60):
             mcc.pop()
             meanSpeed.pop()
             time.pop()
-     #   print("len(speeds), speeds: {} , {}".format(len(meanSpeed), meanSpeed))
-     #   print("len(counts), counts: {} , {}".format(len(mcc), mcc))
-     #   print("len(time) , time: {} {}".format(len(time), time))
         return mcc, meanSpeed, time
 
 
     def getSpaceTimeDiagram(self, timeCut=0, hcut=0):
+        """
+        inputs:
+            timeCut = int, symbolizes where we want to start our space-time diagram from
+            hcut = int/float, symbolizes how much space we want to trim in our space-time diagram 
+        output:
+            plots two spacetime diagram corresponding to two emission files side by side
+        """
         data1 = PFO.SimulationData(csv_path = self.csv1)
         data2 = PFO.SimulationData(csv_path = self.csv2)
         edge_list = ['highway_0']
@@ -94,29 +109,42 @@ class Plotter:
         fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True)
         fig.suptitle('Space Time Diagrams')
         im1 = ax1.scatter(plot1[0],plot1[1],s=plot1[2],c=plot1[3],marker=plot1[4])
-        ax1.set_title("a = {}".format(self.aval1))
+        ax1.set_title("a = {}".format(self.a_val1))
        # im1.set_clim(clim)
         ax1.set_ylabel("Position (m)")
         im2 = ax2.scatter(plot2[0],plot2[1],s=plot2[2],c=plot2[3],marker=plot2[4])
-        ax2.set_title("a = {}".format(self.aval2))
+        ax2.set_title("a = {}".format(self.a_val2))
        # im2.set_clim(clim)
         ax2.set_xlabel("Time (s)")
        # plt.colorbar(im2)
         plt.savefig(fileName)
         plt.show()
 
-    def getRadarDataPlot(self, data1, data2, time,fname, ylab, lim=1):
+    def getRadarDataPlot(self, data1, data2, time, fname, ylab, lim=1):
+        """
+        inputs:
+            data1 = array/list, macro data such as speeds or counts corresponding to emission 1
+            data2 = array/list, macro data such as speeds or counts corresponding to emission 2
+            time =  array/list, macro data of times corresponding to any emission file
+            fname = string, name of saved figure 
+            ylab =  Label for y axis
+            lim = int, time at and after which we are interested in data plotting (lim=1 means all the RDS data)
+        outputs:
+            creates two RDS data plots in one figure using two emission files
+        example use:
+            getRadarDataPlot(h1.getVelocityData(), h2.getVelocityData(), h1.getMeasurementTimes(),"speeds", "Speed (m/s)", lim=h1.sim_time*30 - 300)
+        """
         #converting time to index
         lim = time.index(lim)
         data1 = list(data1)[lim:]
         data2 = list(data2)[lim:]
         xval = [i for i in range(len(data1))]
-        plt.plot(xval, data1, label="a = {}".format(self.aval1))
-        plt.plot(xval, data2, label="a = {}".format(self.aval2))
+        plt.plot(xval, data1, label="a = {}".format(self.a_val1))
+        plt.plot(xval, data2, label="a = {}".format(self.a_val2))
         plt.xlabel("Measurement Number")
         plt.ylabel(ylab)
         plt.legend()
-        plt.title("{} Data at a = {}".format(ylab, self.aval1))
+        plt.title("{} Data at a = {}".format(ylab, self.a_val1))
         plt.savefig("figures/radar_plot_"+fname+".png")
         plt.show()
 
@@ -128,16 +156,20 @@ New Class
 class RDSData:
 
     def __init__(self, csvFile, a_val,sim_time):
-        self.csvFile = csvFile
+        self.csvFile = csvFile # emission file
         self.fidelity = 30
         self.position_for_count = 800
         self.countsData = []
         self.speedData = []
         self.timeData = []
-        self.a_val = a_val
+        self.a_val = a_val # a value used for emission file
         self.sim_time = sim_time
 
     def processMacroData(self):
+        """
+        input: emission csv file
+        output: 3 lists containing RDS data - counts, speeds, times
+        """
         highway_data = PFO.SimulationData(csv_path = self.csvFile)
         pos_dict = highway_data.get_Timeseries_Dict(data_id='TOTAL_POSITION',want_Numpy=True)
         vel_dict =highway_data.get_Timeseries_Dict(data_id='SPEED',want_Numpy=True)
@@ -160,6 +192,10 @@ class RDSData:
         return self.countsData, self.speedData, self.timeData 
 
     def countsEveryXSeconds(self, x, sorted_counts):
+        """
+        input: x (int) is the fidelity, sorted_counts (array) is an array of sorted (in time) tuples (position,time)
+        output: 3 arrays of RDS style data of counts, speed and time of measurement
+        """
         i = 0
         m = 0
         j = 1
@@ -185,14 +221,10 @@ class RDSData:
         for k in mc:
             mcc.append(len(k))
         time = [30*i for i in range(1,len(mcc)+1)]
-     #   print("last time: ", sorted_counts[-1][0])
         if (sorted_counts[-1][0] > float(self.sim_time)*60):
             mcc.pop()
             meanSpeed.pop()
             time.pop()
-     #   print("len(speeds), speeds: {} , {}".format(len(meanSpeed), meanSpeed))
-     #   print("len(counts), counts: {} , {}".format(len(mcc), mcc))
-     #   print("len(time) , time: {} {}".format(len(time), time))
         return mcc, meanSpeed, time
 
 
