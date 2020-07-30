@@ -266,3 +266,17 @@ if __name__ == "__main__":
   #  h2 = HighwayCongested(wave_params=[0.73,2])
     #h1.destroyCSV()
     #h2.destroyCSV()
+    """
+    USED FOR CREATING FOllOWING PAPER FIGURES: fig 2 and fig 4
+    execute the following for recreating:
+    
+    h0 = HighwayCongested(wave_params=[0.75,2.0])
+    h = HighwayCongested(wave_params=[2.0,2.0])
+    h1 = h0.runSim()
+    h2 = h.runSim()
+    p = Plotter(h1.csvFileName, h2.csvFileName, h1.sim_time*60, h1.road_length, 0.75, 2.0)
+    p.getSpaceTimeDiagram()
+    p.getSpaceTimeDiagram(timeCut=h1.sim_time*30 - 300, hcut=200) #last 40 measurements and 200 m cut around space boundaries
+    p.getRadarDataPlot(h1.getVelocityData(), h2.getVelocityData(), h1.getMeasurementTimes(),"speeds", "Speed (m/s)", lim=h1.sim_time*30 - 300)
+    
+    """
