@@ -275,12 +275,38 @@ def testPlots(Lstring, phiString):
     createLossValuesPlot(1.1, 1.5, Lstring, phiString)
     createLossValuesPlot(0.7, 1.0, Lstring, phiString)
 
+def createComparisonTimeSeriesPlot(a_vals, b_vals):
+    csv_folder = 'Param_Sweep/'
+    csv_files = ["a-"+str(a_vals[0])+"b-"+str(b_vals[0])+".csv","a-"+str(a_vals[1])+"b-"+str(b_vals[1])+".csv"]
+    sim_info_dict = dict.fromkeys(csv_files)
+    time_series_data = []
+    for csv_file in csv_files:
+            sim_info_dict[csv_file] = SimInfo(csv_folder=csv_folder,file_name=csv_file)
+            time_series_data.append(sim_info_dict[csv_file].speedData)
+    xvals = [30*i for i in range(len(time_series_data[0][0]))]
+   # print(len(time_series_data[0][9]))
+    
+    pt.subplot(1,2,1)
+    for i in range(len(time_series_data[0])):   
+        pt.plot(xvals,time_series_data[0][i],'r')
+    pt.xlabel("Time [s]")
+    pt.ylabel("Speeds [m/s]")
+    pt.ylim([0,20])
+    pt.subplot(1,2,2)
+    for i in range(len(time_series_data[1])):   
+        pt.plot(xvals,time_series_data[1][i],'b')
+    pt.xlabel("Time [s]")
+    pt.ylabel("Speeds [m/s]")
+    pt.ylim([0,20])
+   # pt.savefig("_.png")
+    pt.show()
 
 if __name__ == "__main__":
-   createPercentageAnalysisColorPlot("MAE", "Mean")
-   createPercentageAnalysisColorPlot("MAE", "Std")
-   createPercentageAnalysisColorPlot("MAE", "Amplitude")
-   createPercentageAnalysisColorPlot("MAE", "HybridPhi")
-   createPercentageAnalysisColorPlot("MAE", "Identity")
-   createPercentageAnalysisColorPlot("MAE", "Period")
-
+    """
+    createPercentageAnalysisColorPlot("MAE", "Std")
+    createPercentageAnalysisColorPlot("MAE", "Amplitude")
+    createPercentageAnalysisColorPlot("MAE", "HybridPhi")
+    createPercentageAnalysisColorPlot("MAE", "Identity")
+    createPercentageAnalysisColorPlot("MAE", "Period")
+    """
+    createComparisonTimeSeriesPlot([0.5,1.2], [1.3,1.3])
