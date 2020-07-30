@@ -1,7 +1,6 @@
 """
 @author: Sadman Ahmed Shanto
-usage:
-    
+used for creating figures 5,6, and 7
 """
 import numpy as np
 import os
@@ -289,12 +288,14 @@ def createComparisonTimeSeriesPlot(a_vals, b_vals):
     pt.subplot(1,2,1)
     for i in range(len(time_series_data[0])):   
         pt.plot(xvals,time_series_data[0][i],'r')
+    pt.title("a = {}, b = {}".format(a_vals[0],b_vals[0]))
     pt.xlabel("Time [s]")
     pt.ylabel("Speeds [m/s]")
     pt.ylim([0,20])
     pt.subplot(1,2,2)
     for i in range(len(time_series_data[1])):   
         pt.plot(xvals,time_series_data[1][i],'b')
+    pt.title("a = {}, b = {}".format(a_vals[1],b_vals[1]))
     pt.xlabel("Time [s]")
     pt.ylabel("Speeds [m/s]")
     pt.ylim([0,20])
@@ -310,3 +311,4 @@ if __name__ == "__main__":
     createPercentageAnalysisColorPlot("MAE", "Period")
     """
     createComparisonTimeSeriesPlot([0.5,1.2], [1.3,1.3])
+    createComparisonTimeSeriesPlot([0.7,1.2], [1.3,1.3])
