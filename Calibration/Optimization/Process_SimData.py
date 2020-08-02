@@ -169,17 +169,17 @@ def createLossValuesPlot(true_a, true_b, Lstring, phiString):
     fig = pt.figure()
     L_exp, L_max, L_min, TrueIndex = getLStatsData(true_a, true_b, Lstring, phiString) 
     x_L_expect = [i for i in range(len(L_exp))]
-    pt.plot(x_L_expect, L_exp, 'b.')
-    pt.plot(x_L_expect, L_max, 'g.')
-    pt.plot(x_L_expect, L_min, 'y.')
+    pt.plot(x_L_expect, L_exp, 'b.', markersize=11)
+    pt.plot(x_L_expect, L_max, 'g.', markersize=11)
+    pt.plot(x_L_expect, L_min, 'y.', markersize=11)
     #true
-    pt.plot(x_L_expect[TrueIndex], L_exp[TrueIndex], 'rs')
-    pt.plot(x_L_expect[TrueIndex], L_max[TrueIndex], 'rs')
-    pt.plot(x_L_expect[TrueIndex], L_min[TrueIndex], 'rs')
-
-    pt.title("a: {}, b: {}".format(true_a, true_b))
-    pt.xlabel("Simulations")
-    pt.ylabel("Loss Function Evaulations")
+    pt.plot(x_L_expect[TrueIndex], L_exp[TrueIndex], 'rs', markersize=10)
+    pt.plot(x_L_expect[TrueIndex], L_max[TrueIndex], 'rs', markersize=10)
+    pt.plot(x_L_expect[TrueIndex], L_min[TrueIndex], 'rs', markersize=10)
+    pt.title("Loss function evaluation comparison: a = {}, b = {}".format(true_a,true_b), fontdict={'size':16})
+    pt.xlabel("Loss Function Ranking", fontdict={'size':13})
+    pt.ylabel("Loss Function Evaulations", fontdict={'size':13})
+    pt.ylim([2.5,8])
     pt.legend(["expected", "max", "min"])
     fig.savefig("figures/a-{}b-{}loss.png".format(true_a,true_b), dpi=600)
     pt.show()
@@ -229,7 +229,7 @@ def createPercentageAnalysisColorPlot(LfuncName, PhiFuncName):
     phiString = string keyword that determines which phi function to use. Options are {Mean, Identity, Amplitude, Std, Period, HybridPhi}
     purpose: creates the contour plot of tuple (a,b,percentage of L exp less than true param)
     """
-    fig = pt.figure(figsize=(8.0, 5.0))
+    fig = pt.figure(figsize=(24,15))
     true_as = [round(0.5+0.1*i,2) for i in range(9)]
     true_bs = [round(1.0+0.1*i,2) for i in range(6)]
     percentages = [] #tuple of (a,b,percentage_val)
@@ -240,16 +240,17 @@ def createPercentageAnalysisColorPlot(LfuncName, PhiFuncName):
     b_vals= [i[1] for i in percentages]
     L_vals= [i[2] for i in percentages]
     x_vals = [i for i in range(len(a_vals))]
-    pt.scatter(a_vals, b_vals, c=L_vals)
+    pt.scatter(a_vals, b_vals, c=L_vals, s=100)
 #    pt.scatter(a_vals[TrueIndex], b_vals[TrueIndex])
     pt.clim([0,100])
     pt.colorbar()
     score = round(sum(L_vals) /  (len(true_as)*len(true_bs)), 4)
-    pt.title("Loss function: {}, Phi operator: {}, <L,Phi> score = {}".format(LfuncName, PhiFuncName, score))
-    pt.xlabel("a values")
-    pt.ylabel("b values")
+    #pt.title("Loss function: {}, Phi operator: {}, <L,Phi> score = {}".format(LfuncName, PhiFuncName, score))
+    pt.title("PPF of {}".format(LfuncName), fontdict={'size':25})
+    pt.xlabel("a values",fontdict={'size':20})
+    pt.ylabel("b values",fontdict={'size':20})
     fig.savefig("figures/{}and{}color.png".format(LfuncName,PhiFuncName), dpi=600)
-   # pt.show()
+    pt.show()
     pt.close(fig)
 
 def getDivergenceOfA(a_real, b_real, Lstring, phiString):
@@ -284,12 +285,12 @@ def getAverageDivergenceMetrics(LfuncName, PhiFuncName):
     for i in range(len(true_as)):
         for j in range(len(true_bs)):
             percentages.append((true_as[i],true_bs[j],getPercentageLessThanLTrue(true_as[i],true_bs[j], LfuncName, PhiFuncName)))
-            divergences_a.append(getDivergenceOfA(true_as[i],true_bs[j], LfuncName, PhiFuncName))
-            divergences_b.append(getDivergenceOfB(true_as[i],true_bs[j], LfuncName, PhiFuncName))
+            divergences_a.append(getDivergenceOfA(true_as[i],true_bs[j], LfuncName, PhiFuncName)/true_as[i])
+            divergences_b.append(getDivergenceOfB(true_as[i],true_bs[j], LfuncName, PhiFuncName)/true_bs[j])
     percentages = [i[2] for i in percentages]
     average_percentage_divergence = sum(percentages) / len(percentages)
-    average_divergence_a = 100* (sum(divergences_a) / len(divergences_a))
-    average_divergence_b = 100* (sum(divergences_b) / len(divergences_b))
+    average_divergence_a = 100 * (sum(divergences_a) / len(divergences_a))
+    average_divergence_b = 100 * (sum(divergences_b) / len(divergences_b))
     print("L = {}, Phi = {}".format(LfuncName, PhiFuncName))
     print("apd: ", average_percentage_divergence)
     print("ada: ", average_divergence_a)
@@ -299,6 +300,43 @@ def getAverageDivergenceMetrics(LfuncName, PhiFuncName):
     outF.write(line)
     outF.write("\n")
     outF.close()
+
+def getDivergenceABPlots(LfuncName, PhiFuncName):
+    """
+    Lstring = string keyword that determines which Loss function to use. Options are {RMSE,SSE,MAE,SPD,}
+    phiString = string keyword that determines which phi function to use. Options are {Mean, Identity, Amplitude, Std, Period, HybridPhi}
+    purpose: creates the contour plots of tuples (a,b,percentage div_a), (a,b,percentage div_b)
+    """
+    true_as = [round(0.5+0.1*i,2) for i in range(9)]
+    true_bs = [round(1.0+0.1*i,2) for i in range(6)]
+    percentages = [] #tuple of (a,b,div_a,div_b)
+    for i in range(len(true_as)):
+        for j in range(len(true_bs)):
+            div_a = getDivergenceOfA(true_as[i],true_bs[j], LfuncName, PhiFuncName) #* 100
+            div_b = getDivergenceOfB(true_as[i],true_bs[j], LfuncName, PhiFuncName) #* 100
+            percentages.append((true_as[i], true_bs[j], div_a, div_b))
+    a_vals= [i[0] for i in percentages]
+    b_vals= [i[1] for i in percentages]
+    div_a_vals= [i[2] for i in percentages]
+    div_b_vals= [i[3] for i in percentages]
+    x_vals = [i for i in range(len(a_vals))]
+    plotColorScatterGraph(a_vals, b_vals, div_a_vals, "a", LfuncName, PhiFuncName)
+    plotColorScatterGraph(a_vals, b_vals, div_b_vals, "b", LfuncName, PhiFuncName)
+
+def plotColorScatterGraph(a_vals,b_vals,L_vals,typ,LfuncName,PhiFuncName):
+    fig = pt.figure(figsize=(24,15))
+    pt.scatter(a_vals, b_vals, c=L_vals, s=100)
+  #  pt.clim([0,100])
+    pt.colorbar()
+    pt.title("$PPD_{}$ of {}".format(typ, LfuncName), fontdict={'size':25})
+    pt.xlabel("a values",fontdict={'size':20})
+    pt.ylabel("b values",fontdict={'size':20})
+    fig.savefig("figures/{}and{}anddiv_{}.png".format(LfuncName,PhiFuncName,typ), dpi=600)
+   # pt.show()
+    pt.close(fig)
+
+
+
 
 def createPercentageAnalysisPlot(LfuncName, PhiFuncName):
     """
@@ -361,16 +399,16 @@ def createComparisonTimeSeriesPlot(a_vals, b_vals):
     pt.subplot(1,2,1)
     for i in range(len(time_series_data[0])):
         pt.plot(xvals,time_series_data[0][i],'r')
-    pt.title("a = {}, b = {}".format(a_vals[0],b_vals[0]))
-    pt.xlabel("Time [s]")
-    pt.ylabel("Speeds [m/s]")
+    pt.title("a = {}, b = {}".format(a_vals[0],b_vals[0]), fontdict={'size':25})
+    pt.xlabel("Time [s]", fontdict={'size':20})
+    pt.ylabel("Speeds [m/s]", fontdict={'size':20})
     pt.ylim([0,20])
     pt.subplot(1,2,2)
     for i in range(len(time_series_data[1])):
         pt.plot(xvals,time_series_data[1][i],'b')
-    pt.title("a = {}, b = {}".format(a_vals[1],b_vals[1]))
-    pt.xlabel("Time [s]")
-    pt.ylabel("Speeds [m/s]")
+    pt.title("a = {}, b = {}".format(a_vals[1],b_vals[1]), fontdict={'size':25})
+    pt.xlabel("Time [s]", fontdict={'size':20})
+    pt.ylabel("Speeds [m/s]", fontdict={'size':20})
     pt.ylim([0,20])
    # pt.savefig("_.png")
     pt.show()
@@ -380,12 +418,15 @@ def getAllPlotsAndMetrics(L_funcs, Phi_funcs):
     for l in L_funcs:
         for phi in Phi_funcs:
             getAverageDivergenceMetrics(l, phi)
-            createPercentageAnalysisColorPlot(l, phi)
+            getDivergenceABPlots(l,phi)
+            #createPercentageAnalysisColorPlot(l, phi)
+
 
 if __name__ == "__main__":
    # getAverageDivergenceMetrics("SSE", "Identity")
    # createComparisonTimeSeriesPlot([0.5,1.2], [1.3,1.3])
-   # createComparisonTimeSeriesPlot([0.7,1.2], [1.3,1.3])
-   L_funcs = ["U"]
-   Phi_funcs = ["Identity","Mean","Std","Amplitude","Period","HybridPhi"]
+   L_funcs = ["RMSE","ME","SSE","MAE","MANE","MNE","RMSNE","U"]
+   Phi_funcs = ["Identity"]
+  # createLossValuesPlot(0.5, 1.2, "RMSE", "Identity")
+  # Phi_funcs = ["Identity","Mean","Std","Amplitude","Period","HybridPhi"]
    getAllPlotsAndMetrics(L_funcs, Phi_funcs)
